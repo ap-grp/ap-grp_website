@@ -1,17 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PageState } from '../App'
-import { projects, articles } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { homeImages } from '../content/home'
+import { featuredArticle } from '../content/media'
+import { latestProjects } from '../content/projects'
 import { useLang } from '../context/lang'
 
-// ── Hero slideshow images ─────────────────────────────────────────────────────
-// To use your own images: place files in public/images/home/ and update paths,
-// e.g. '/images/home/hero-1.jpg'
-const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1483366774565-c783b9f70e2c?w=1920&h=1080&fit=crop&auto=format&q=80',
-  'https://images.unsplash.com/photo-1576831371356-d6e9411ae501?w=1920&h=1080&fit=crop&auto=format&q=80',
-  'https://images.unsplash.com/photo-1554700124-538d459fc050?w=1920&h=1080&fit=crop&auto=format&q=80',
-  'https://images.unsplash.com/photo-1610696338308-dd48c9da0c72?w=1920&h=1080&fit=crop&auto=format&q=80',
-]
+const HERO_IMAGES = homeImages.hero
 const SLIDE_INTERVAL = 5000 // ms between slides
 
 interface Props {
@@ -65,12 +60,12 @@ export default function Home({ navigate }: Props) {
   const { lang } = useLang()
   const zh = lang === 'zh'
 
-  const selectedProjects = projects.slice(0, 4)
-  const featuredArticle = articles[0]
   const introRef = useRef<HTMLDivElement>(null)
   useFadeIn(introRef)
 
-  const [heroIndex, setHeroIndex] = useState(0)
+  const [heroIndex, setHeroIndex] = useState(() =>
+    HERO_IMAGES.length > 0 ? Math.floor(Math.random() * HERO_IMAGES.length) : 0,
+  )
   const [heroPaused, setHeroPaused] = useState(false)
 
   useEffect(() => {
@@ -83,14 +78,14 @@ export default function Home({ navigate }: Props) {
     ? [
         { value: '20+', label: '年执业经验' },
         { value: '150+', label: '已完成项目' },
-        { value: '12', label: '国家和地区' },
-        { value: '7', label: '设计领域' },
+        { value: '14', label: '个国家' },
+        { value: '7', label: '个办事处' },
       ]
     : [
-        { value: '20+', label: 'years of practice' },
-        { value: '150+', label: 'projects completed' },
-        { value: '12', label: 'countries' },
-        { value: '7', label: 'disciplines' },
+        { value: '30+', label: 'years of practice' },
+        { value: '200+', label: 'projects completed' },
+        { value: '14', label: 'countries reached' },
+        { value: '7', label: 'offices' },
       ]
 
   return (
@@ -103,10 +98,13 @@ export default function Home({ navigate }: Props) {
       >
         {/* Crossfade slideshow */}
         {HERO_IMAGES.map((src, i) => (
-          <img
+          <ResponsiveImage
             key={src}
             src={src}
             alt=""
+            sizes="100vw"
+            loading={i === heroIndex ? 'eager' : 'lazy'}
+            fetchPriority={i === heroIndex ? 'high' : 'low'}
             aria-hidden={i !== heroIndex}
             style={{
               position: 'absolute', inset: 0, width: '100%', height: '100%',
@@ -125,11 +123,11 @@ export default function Home({ navigate }: Props) {
             bottom: '8%',
             left: 'clamp(2rem,5vw,6rem)',
             right: '2rem',
-            maxWidth: '680px',
+            maxWidth: '1200px',
           }}
         >
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.55)', marginBottom: '1.25rem' }}>
-            est. 2004 · singapore
+            est. 1997 · singapore
           </p>
           <h1
             style={{
@@ -246,19 +244,19 @@ export default function Home({ navigate }: Props) {
                   color: '#212529',
                 }}
               >
-                {zh ? '以建筑改变生活的笃定，成就一家事务所' : 'a practice built on the conviction that architecture changes lives'}
+                {zh ? '融合人、活动与场所，营造历久弥新的环境。' : 'fusing people, activity and place into enduring environments.'}
               </h2>
             </FadeSection>
             <FadeSection delay={0.15}>
               <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '1.5rem', letterSpacing: '0.02em' }}>
                 {zh
-                  ? '廖松顺与梁美美于2004年创立a+pgrp，历经多年发展，从新加坡一家精品工作室成长为在东南亚及更广泛地区开展业务的多元化设计事务所。'
-                  : 'founded in 2004 by andrew chen and priya gopal, a+pgrp has grown from a boutique singapore studio into a multi-disciplinary design practice working across southeast asia and beyond.'}
+                  ? '优秀的设计始于对环境脉络、发展机遇与长远价值的深刻理解。我们融合建筑、城市规划、工程及设计等多元专业，以综合性的思维创造兼具创新、功能与技术品质的解决方案。每一个项目都体现我们对卓越设计的坚持，致力于营造经得起时间考验、回应社区需求的环境。'
+                  : 'thoughtful design begins with a clear understanding of context, opportunity, and long-term value. by integrating architecture, urban planning, engineering, and design, we deliver solutions that balance technical excellence with thoughtful innovation. every project reflects a commitment to creating environments that are enduring, functional, and responsive to the needs of their communities.'}
               </p>
               <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '2.5rem', letterSpacing: '0.02em' }}>
                 {zh
-                  ? '我们在每一个尺度上进行工作——从门把手的细节到整座城市的布局——跨越每一个领域，从私人住宅到市政基础设施，从精品酒店到城市总体规划。'
-                  : 'we work at every scale — from the detail of a door handle to the layout of an entire city — and across every sector, from intimate private residences to civic infrastructure, from boutique hotels to urban masterplans.'}
+                  ? '近三十年来，我们与亚洲及世界各地的客户携手合作，完成了涵盖总体规划、城市发展及地标建筑等不同规模与类型的项目。秉持协作精神、专业诚信与可持续发展的理念，我们持续创造兼具实用性、适应性与长远价值的设计，为城市与社区的发展贡献深远影响。'
+                  : 'for nearly three decades, we have partnered with clients across asia and beyond to realise projects of every scale, from master plans to landmark developments. guided by collaboration, integrity, and sustainable thinking, we pursue design that is practical, adaptable, and built to create lasting value.'}
               </p>
               <button
                 onClick={() => navigate({ id: 'story' })}
@@ -340,25 +338,28 @@ export default function Home({ navigate }: Props) {
           </FadeSection>
 
           <div className="home-projects-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '2rem' }}>
-            {selectedProjects.map((p, i) => (
+            {latestProjects.map((p, i) => (
               <FadeSection key={p.slug} delay={i * 0.1}>
                 <button
                   onClick={() => navigate({ id: 'project-detail', slug: p.slug })}
                   style={{ display: 'block', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
                 >
                   <div className="img-zoom" style={{ aspectRatio: '1/1', backgroundColor: '#e9ecef', overflow: 'hidden' }}>
-                    <img
-                      src={p.images[0]}
-                      alt={zh ? p.zhTitle : p.title}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    />
+                    {p.images[0] && (
+                      <ResponsiveImage
+                        src={p.images[0]}
+                        alt={p.title[lang]}
+                        sizes="(max-width: 767px) calc(100vw - 4rem), (max-width: 1200px) 50vw, 520px"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      />
+                    )}
                   </div>
                   <div style={{ paddingTop: '1rem' }}>
                     <p style={{ fontSize: '0.9rem', fontWeight: 400, letterSpacing: '0.01em', marginBottom: '0.25rem', color: '#212529' }}>
-                      {zh ? p.zhTitle : p.title}
+                      {p.title[lang]}
                     </p>
                     <p style={{ fontSize: '0.7rem', color: '#9AA3AC', letterSpacing: '0.05em' }}>
-                      {zh ? (p.zhLocation ?? p.location) : p.location}
+                      {p.location[lang]}
                     </p>
                   </div>
                 </button>
@@ -383,9 +384,10 @@ export default function Home({ navigate }: Props) {
             >
               <div className="home-article-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '3rem', alignItems: 'center' }}>
                 <div className="img-zoom" style={{ aspectRatio: '16/10', backgroundColor: '#e9ecef', overflow: 'hidden' }}>
-                  <img
+                  <ResponsiveImage
                     src={featuredArticle.imageUrl}
                     alt={zh ? featuredArticle.zhTitle : featuredArticle.title}
+                    sizes="(max-width: 800px) calc(100vw - 4rem), 50vw"
                     style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                   />
                 </div>
@@ -432,9 +434,10 @@ export default function Home({ navigate }: Props) {
           textAlign: 'center',
         }}
       >
-        <img
-          src="https://images.unsplash.com/photo-1611570885483-095b1b449aa3?w=1920&h=600&fit=crop&auto=format&q=70"
+        <ResponsiveImage
+          src={homeImages.contactCta}
           alt=""
+          sizes="100vw"
           aria-hidden="true"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.18 }}
         />

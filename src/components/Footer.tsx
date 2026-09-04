@@ -1,7 +1,6 @@
 import type { PageState } from '../App'
 import { useLang } from '../context/lang'
-import { tx } from '../i18n'
-import logoUrl from '../imports/apgrp_logo.svg'
+import logoUrl from '../assets/apgrp_logo.svg'
 
 interface FooterProps {
   navigate: (p: PageState) => void
@@ -100,11 +99,11 @@ export default function Footer({ navigate }: FooterProps) {
           </div>
         </div>
 
-        {/* Bottom row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
-          <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.04em' }}>
-            {tx('footer', 'copyright', lang)}
-          </p>
+          {/* Bottom row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1.5rem', gap: '1rem', flexWrap: 'wrap' }}>
+            <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.04em' }}>
+              © {new Date().getFullYear()} {lang === 'en' ? 'a+pgrp. all rights reserved.' : 'a+pgrp. 版权所有。'}
+            </p>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <a href="#" style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.04em', textDecoration: 'none' }}>
               {lang === 'en' ? 'privacy policy' : '隐私政策'}

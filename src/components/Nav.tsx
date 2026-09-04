@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { PageState } from '../App'
 import { useLang } from '../context/lang'
-import { tx } from '../i18n'
-import logoUrl from '../imports/apgrp_logo.svg'
+import logoUrl from '../assets/apgrp_logo.svg'
 
 interface NavProps {
   currentPage: string
@@ -16,19 +15,19 @@ export default function Nav({ currentPage, navigate }: NavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileSearch, setMobileSearch] = useState('')
 
-  type NavKey = 'story' | 'people' | 'services' | 'projects' | 'media' | 'jobs' | 'contact'
-  const links: { labelKey: NavKey; page: PageState['id'] }[] = [
-    { labelKey: 'story', page: 'story' },
-    { labelKey: 'people', page: 'people' },
-    { labelKey: 'services', page: 'services' },
-    { labelKey: 'projects', page: 'projects' },
-    { labelKey: 'media', page: 'media' },
-    { labelKey: 'jobs', page: 'jobs' },
-    { labelKey: 'contact', page: 'contact' },
+  const links: { label: { en: string; zh: string }; page: PageState['id'] }[] = [
+    { label: { en: 'our story', zh: '关于我们' }, page: 'story' },
+    { label: { en: 'people', zh: '团队' }, page: 'people' },
+    { label: { en: 'services', zh: '服务' }, page: 'services' },
+    { label: { en: 'projects', zh: '项目' }, page: 'projects' },
+    { label: { en: 'media', zh: '媒体' }, page: 'media' },
+    { label: { en: 'jobs', zh: '招聘' }, page: 'jobs' },
+    { label: { en: 'contact', zh: '联系我们' }, page: 'contact' },
   ]
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    const onScroll = () => setScrolled(window.scrollY > 12)
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -44,6 +43,8 @@ export default function Nav({ currentPage, navigate }: NavProps) {
 
   const isHome = currentPage === 'home'
   const isTransparent = isHome && !scrolled && !menuOpen
+  const isExpandedHome = isHome && !scrolled && !menuOpen
+  const navHeight = isExpandedHome ? 'clamp(88px, 9vw, 112px)' : '64px'
 
   return (
     <>
@@ -54,14 +55,14 @@ export default function Nav({ currentPage, navigate }: NavProps) {
           left: 0,
           right: 0,
           zIndex: 100,
-          height: '64px',
+          height: navHeight,
           display: 'flex',
           alignItems: 'center',
           padding: '0 clamp(2rem, 5vw, 5rem)',
           backgroundColor: isTransparent ? 'transparent' : 'rgba(255,255,255,0.96)',
           borderBottom: isTransparent ? 'none' : '1px solid #dee2e6',
           backdropFilter: scrolled ? 'blur(8px)' : 'none',
-          transition: 'background-color 0.4s ease, border-color 0.4s ease',
+          transition: 'height 0.45s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease, border-color 0.4s ease',
         }}
       >
         {/* Logo */}
@@ -74,11 +75,11 @@ export default function Nav({ currentPage, navigate }: NavProps) {
             src={logoUrl}
             alt="a+pgrp"
             style={{
-              height: '26px',
+              height: isExpandedHome ? 'clamp(44px, 5vw, 62px)' : '26px',
               width: 'auto',
               display: 'block',
               filter: isTransparent ? 'brightness(0) invert(1)' : 'none',
-              transition: 'filter 0.4s ease',
+              transition: 'height 0.45s cubic-bezier(0.4, 0, 0.2, 1), filter 0.4s ease',
             }}
           />
         </button>
@@ -97,7 +98,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
                 letterSpacing: '0.08em', fontSize: '0.7rem',
               }}
             >
-              {tx('nav', l.labelKey, lang)}
+              {l.label[lang]}
             </button>
           ))}
         </div>
@@ -127,7 +128,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
               padding: 0, fontFamily: 'inherit',
             }}
           >
-            {tx('nav', 'langToggle', lang)}
+            {lang === 'en' ? '简' : 'EN'}
           </button>
         </div>
 
@@ -151,7 +152,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
 
       {/* Desktop search bar */}
       {searchOpen && (
-        <div className="hidden md:block" style={{ position: 'fixed', top: '64px', left: 0, right: 0, zIndex: 99, backgroundColor: '#ffffff', borderBottom: '1px solid #dee2e6', padding: '1rem clamp(2rem,5vw,6rem)' }}>
+        <div className="hidden md:block" style={{ position: 'fixed', top: navHeight, left: 0, right: 0, zIndex: 99, backgroundColor: '#ffffff', borderBottom: '1px solid #dee2e6', padding: '1rem clamp(2rem,5vw,6rem)', transition: 'top 0.45s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '600px', margin: '0 auto' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA3AC" strokeWidth="1.5">
               <circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="22" y2="22" />
@@ -242,7 +243,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
                 animation: menuOpen ? `fadeSlideIn 0.4s ease forwards ${i * 0.05 + 0.05}s` : 'none',
               }}
             >
-              {tx('nav', l.labelKey, lang)}
+              {l.label[lang]}
             </button>
           ))}
         </div>

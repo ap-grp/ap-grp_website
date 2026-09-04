@@ -99,6 +99,27 @@ body {
   transform: translateY(0);
 }
 
+/* Keep the presence map at a readable scale as the viewport narrows. The
+   viewport crops its sides down to a 1:1 visible area; below that point the
+   complete map canvas scales with the screen again. */
+.story-map-viewport {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+}
+
+.story-map-canvas {
+  left: 50%;
+  width: max(100%, 1000px);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 500px) {
+  .story-map-canvas {
+    width: 200vw;
+  }
+}
+
 @media (min-width: 1600px) {
   body {
     font-size: 17px;

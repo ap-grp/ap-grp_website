@@ -1,7 +1,23 @@
 import { useState, useEffect, useRef } from 'react'
 import type { PageState } from '../App'
-import { projects } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { projects } from '../content/projects'
+import type { ProjectTag } from '../content/projects'
+import { projectTypeLabels } from '../content/types'
 import { useLang } from '../context/lang'
+
+type ProjectFilter = 'all' | ProjectTag
+
+const filters: { key: ProjectFilter; en: string; zh: string }[] = [
+  { key: 'all', en: 'all', zh: '全部' },
+  ...Object.entries(projectTypeLabels).map(([key, label]) => ({
+    key: key as ProjectTag,
+    ...label,
+  })),
+]
+
+const isProjectFilter = (value?: string): value is ProjectFilter =>
+  filters.some((filter) => filter.key === value)
 
 interface Props {
   navigate: (p: PageState) => void
@@ -29,22 +45,13 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
 export default function Projects({ navigate, initialFilter }: Props) {
   const { lang } = useLang()
   const zh = lang === 'zh'
-  const [active, setActive] = useState(initialFilter || 'all')
-
-  const filters = [
-    { key: 'all', en: 'all', zh: '全部' },
-    { key: 'commercial', en: 'commercial', zh: '商业' },
-    { key: 'industrial', en: 'industrial', zh: '工业' },
-    { key: 'residential', en: 'residential', zh: '住宅' },
-    { key: 'hospitality', en: 'hospitality', zh: '酒店' },
-    { key: 'institutional', en: 'institutional', zh: '公共建筑' },
-    { key: 'masterplanning', en: 'masterplanning', zh: '总体规划' },
-    { key: 'landscape', en: 'landscape', zh: '景观' },
-  ]
+  const [active, setActive] = useState<ProjectFilter>(
+    isProjectFilter(initialFilter) ? initialFilter : 'all',
+  )
 
   const filtered = active === 'all'
     ? projects
-    : projects.filter((p) => p.tags.includes(active))
+    : projects.filter((p) => p.type.includes(active))
 
   return (
     <div style={{ paddingTop: '64px' }}>
@@ -57,10 +64,10 @@ export default function Projects({ navigate, initialFilter }: Props) {
       >
         <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '0.75rem' }}>
-            {zh ? '作品集' : 'portfolio'}
+            {zh ? '项目' : 'projects'}
           </p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)', fontWeight: 300, letterSpacing: '-0.01em', marginBottom: '2.5rem' }}>
-            {zh ? '项目' : 'projects'}
+            {zh ? '我们的作品' : 'our work'}
           </h1>
 
           {/* Filters */}
@@ -105,25 +112,30 @@ export default function Projects({ navigate, initialFilter }: Props) {
               }}
             >
               {filtered.map((p, i) => (
-                <FadeSection key={p.slug} delay={i * 0.06}>
+                <FadeSection key={p.slug} delay={(i % 3) * 0.06}>
                   <button
                     onClick={() => navigate({ id: 'project-detail', slug: p.slug })}
                     style={{ display: 'block', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
-                    aria-label={`view ${p.title}`}
+                    aria-label={`${zh ? '查看' : 'view'} ${p.title[lang]}`}
                   >
                     <div className="img-zoom" style={{ aspectRatio: '1/1', backgroundColor: '#e9ecef', overflow: 'hidden' }}>
-                      <img
-                        src={p.images[0]}
-                        alt={zh ? p.zhTitle : p.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                      />
+                      {p.images[0] && (
+                        <ResponsiveImage
+                          src={p.images[0]}
+                          alt={p.title[lang]}
+                          sizes="(max-width: 767px) calc(100vw - 4rem), (max-width: 1200px) 50vw, 520px"
+                          loading="eager"
+                          fetchPriority={i < 2 ? 'high' : 'auto'}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
+                      )}
                     </div>
                     <div style={{ paddingTop: '1.1rem' }}>
                       <p style={{ fontSize: '0.95rem', fontWeight: 400, letterSpacing: '0.01em', marginBottom: '0.3rem', color: '#212529' }}>
-                        {zh ? p.zhTitle : p.title}
+                        {p.title[lang]}
                       </p>
                       <p style={{ fontSize: '0.72rem', color: '#9AA3AC', letterSpacing: '0.06em' }}>
-                        {zh ? (p.zhLocation ?? p.location) : p.location}
+                        {p.location[lang]}
                       </p>
                     </div>
                   </button>

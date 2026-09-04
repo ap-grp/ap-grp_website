@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { PageState } from '../App'
-import { jobListings } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { jobFaqs, jobListings, jobsImages } from '../content/jobs'
 import { useLang } from '../context/lang'
 
 function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -23,25 +24,6 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
 
 interface Props {
   navigate: (p: PageState) => void
-}
-
-const faqs = {
-  en: [
-    { q: 'what positions are currently available?', a: 'we currently have openings for a senior architect, interior designer, and urban designer. we are also accepting internship applications on an ongoing basis. please see the listings above for full details.' },
-    { q: 'do you accept internship applications?', a: 'yes. we welcome applications from motivated architectural and design students for internship positions. internships are typically for a minimum of six months and are available across architecture, interior design, and urban design.' },
-    { q: 'what should be included in my portfolio?', a: 'your portfolio should be a concise, curated selection of your best work — typically 15-25 pages. include a range of projects that demonstrate your design skills, technical ability, and creative thinking. do not simply include everything you have ever made.' },
-    { q: 'can i submit a general application?', a: 'yes. if you do not see a role that matches your profile but believe you would be a strong addition to the team, we welcome general applications. please describe your skills and interests clearly in your cover note.' },
-    { q: 'when will i hear back after applying?', a: 'we aim to respond to all applications within four weeks of receipt. if you have not heard from us after four weeks, please feel free to follow up by email.' },
-    { q: 'what file formats can i upload?', a: 'we accept pdf and docx files for your resume and cover letter. for portfolios, pdf is preferred, with a maximum file size of 20mb. if your portfolio is hosted online, you may also share a link.' },
-  ],
-  zh: [
-    { q: '目前有哪些开放职位？', a: '我们目前在招募高级建筑师、室内设计师和城市设计师，同时持续接受实习申请。详情请参阅上方招聘列表。' },
-    { q: '是否接受实习申请？', a: '是的。我们欢迎积极上进的建筑与设计专业学生申请实习职位。实习通常最短六个月，涵盖建筑、室内设计和城市设计领域。' },
-    { q: '作品集应包含哪些内容？', a: '您的作品集应是精心挑选的最佳作品集锦，通常为15-25页。请包含能展示设计能力、技术水平和创意思维的多类项目，切勿将所有作品一并放入。' },
-    { q: '可以提交主动申请吗？', a: '可以。如果您未找到与自身背景匹配的职位，但认为自己能为团队带来价值，欢迎提交主动申请。请在求职信中清晰描述您的技能与兴趣。' },
-    { q: '申请后何时会收到回复？', a: '我们力争在收到申请后四周内回复所有申请人。如超过四周仍未收到回复，欢迎通过邮件跟进。' },
-    { q: '可以上传哪些文件格式？', a: '简历和求职信接受PDF和DOCX格式。作品集建议使用PDF格式，最大文件大小为20MB。如作品集托管在线上，也可分享链接。' },
-  ],
 }
 
 interface FormState {
@@ -109,9 +91,12 @@ export default function Jobs({ navigate: _navigate }: Props) {
           padding: 'clamp(5rem,10vw,9rem) clamp(2rem,5vw,6rem)',
         }}
       >
-        <img
-          src="https://images.unsplash.com/photo-1724582586458-a51791349977?w=1920&h=600&fit=crop&auto=format&q=70"
+        <ResponsiveImage
+          src={jobsImages.hero}
           alt="studio"
+          sizes="100vw"
+          loading="eager"
+          fetchPriority="high"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }}
         />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px' }}>
@@ -145,12 +130,12 @@ export default function Jobs({ navigate: _navigate }: Props) {
               <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '1.25rem', letterSpacing: '0.02em' }}>
                 {zh
                   ? '我们是一个约三十人的工作室——规模适中，每个人都能发挥有意义的作用、清晰表达自己的声音；同时又足够成熟，能够承接复杂而重要的项目。我们的文化以严谨的思维、慷慨的精神和对工作品质的深切追求为核心。'
-                  : 'we are a studio of around thirty people, small enough for every person to have a meaningful role and a clear voice, large enough to take on complex and significant commissions. our culture is defined by intellectual seriousness, generosity of spirit, and a deep commitment to the quality of the work.'}
+                  : 'we are a close-knit core team based in singapore, supported by talented colleagues across our regional offices. our collaborative way of working means everyone has the opportunity to contribute, take ownership, and make a meaningful impact on the projects we undertake.'}
               </p>
               <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', letterSpacing: '0.02em' }}>
                 {zh
-                  ? '我们投资于团队的职业发展，提供广泛的项目类型与规模接触机会，并相信只有在同等信任、挑战与支持的环境中，才能产生最好的设计。'
-                  : 'we invest in the professional development of our team, provide exposure to a wide range of project types and scales, and believe that the best design happens when people are trusted, challenged, and supported in equal measure.'}
+                  ? '团队虽精，但志向远大。随着业务不断拓展，并持续参与区域内更多元、更具挑战性的项目，我们期待更多志同道合、充满热忱的人才加入，与我们一同成长。我们相信，优秀的设计源于信任、挑战与支持并行的工作环境。'
+                    : 'we may be lean in numbers, but our ambitions are far-reaching. as we continue to grow and take on increasingly diverse work across the region, we\'re always looking for thoughtful and motivated people to join us. we believe the best ideas come from people who are trusted, challenged, and supported every step of the way.'}
               </p>
             </FadeSection>
           </div>
@@ -381,7 +366,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
             </FadeSection>
             <FadeSection delay={0.15}>
               <div>
-                {faqs[lang === 'zh' ? 'zh' : 'en'].map((faq, i) => (
+                {jobFaqs.map((faq, i) => (
                   <div key={i} style={{ borderBottom: '1px solid #dee2e6' }}>
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -400,7 +385,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
                       }}
                     >
                       <span style={{ fontSize: '0.82rem', letterSpacing: '0.03em', color: '#212529', fontWeight: openFaq === i ? 500 : 400 }}>
-                        {faq.q}
+                        {faq.question[lang]}
                       </span>
                       <span style={{ fontSize: '1.1rem', color: '#b4906e', flexShrink: 0, transform: openFaq === i ? 'rotate(45deg)' : 'none', transition: 'transform 0.3s ease', lineHeight: 1 }}>
                         +
@@ -408,7 +393,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
                     </button>
                     <div style={{ maxHeight: openFaq === i ? '200px' : 0, overflow: 'hidden', transition: 'max-height 0.35s ease' }}>
                       <p style={{ fontSize: '0.8rem', lineHeight: 1.85, color: '#495057', letterSpacing: '0.02em', paddingBottom: '1.5rem' }}>
-                        {faq.a}
+                        {faq.answer[lang]}
                       </p>
                     </div>
                   </div>

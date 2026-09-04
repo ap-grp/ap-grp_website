@@ -1,5 +1,6 @@
 import type { PageState } from '../App'
-import { articles } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { articles } from '../content/media'
 import { useLang } from '../context/lang'
 
 interface Props {
@@ -55,7 +56,14 @@ export default function MediaDetail({ slug, navigate }: Props) {
 
       {/* Hero image */}
       <div style={{ height: 'clamp(280px, 45vw, 520px)', backgroundColor: '#e9ecef', overflow: 'hidden', maxWidth: '1560px', margin: '0 auto 0' }}>
-        <img src={article.imageUrl.replace('w=1200&h=800', 'w=1920&h=700')} alt={zh ? article.zhTitle : article.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <ResponsiveImage
+          src={article.imageUrl}
+          alt={zh ? article.zhTitle : article.title}
+          sizes="(min-width: 1560px) 1560px, 100vw"
+          loading="eager"
+          fetchPriority="high"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+        />
       </div>
 
       {/* Article body — always English per brief */}
@@ -91,7 +99,12 @@ export default function MediaDetail({ slug, navigate }: Props) {
                   style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
                 >
                   <div className="img-zoom" style={{ aspectRatio: '3/2', backgroundColor: '#e9ecef', overflow: 'hidden', marginBottom: '1rem' }}>
-                    <img src={a.imageUrl} alt={zh ? a.zhTitle : a.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <ResponsiveImage
+                      src={a.imageUrl}
+                      alt={zh ? a.zhTitle : a.title}
+                      sizes="(max-width: 767px) calc(100vw - 4rem), 480px"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
                   </div>
                   <span style={{ fontSize: '0.6rem', letterSpacing: '0.1em', color: '#b4906e', display: 'block', marginBottom: '0.5rem' }}>
                     {zh ? a.zhCategory : a.category}

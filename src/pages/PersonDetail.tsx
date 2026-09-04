@@ -1,5 +1,6 @@
 import type { PageState } from '../App'
-import { people } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { people } from '../content/people'
 import { useLang } from '../context/lang'
 
 interface Props {
@@ -44,9 +45,12 @@ export default function PersonDetail({ slug, navigate }: Props) {
             {/* Portrait */}
             <div>
               <div style={{ aspectRatio: '3/4', backgroundColor: '#e9ecef', overflow: 'hidden', maxWidth: '420px' }}>
-                <img
-                  src={person.imageUrl.replace('w=900&h=900', 'w=840&h=1120')}
-                  alt={zh ? person.zhName : person.name}
+                <ResponsiveImage
+                  src={person.imageUrl}
+                  alt={person.name[lang]}
+                  sizes="(max-width: 680px) calc(100vw - 4rem), 420px"
+                  loading="eager"
+                  fetchPriority="high"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               </div>
@@ -55,14 +59,14 @@ export default function PersonDetail({ slug, navigate }: Props) {
             {/* Bio */}
             <div>
               <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '0.75rem' }}>
-                {zh ? person.zhPosition : person.position}
+                {person.position[lang]}
               </p>
               <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: 300, letterSpacing: '-0.01em', marginBottom: '2rem', lineHeight: 1.2 }}>
-                {zh ? person.zhName : person.name}
+                {person.name[lang]}
               </h1>
 
               <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '3rem', letterSpacing: '0.02em' }}>
-                {zh ? person.zhBio : person.bio}
+                {person.bio[lang]}
               </p>
 
               {/* Qualifications */}
@@ -71,10 +75,10 @@ export default function PersonDetail({ slug, navigate }: Props) {
                   {zh ? '学历资质' : 'qualifications'}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                  {(zh ? person.zhQualifications : person.qualifications).map((q, i) => (
+                  {person.qualifications.map((q, i) => (
                     <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline' }}>
                       <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#b4906e', flexShrink: 0, marginTop: '0.45rem' }} />
-                      <p style={{ fontSize: '0.78rem', color: '#495057', lineHeight: 1.6, letterSpacing: '0.02em' }}>{q}</p>
+                      <p style={{ fontSize: '0.78rem', color: '#495057', lineHeight: 1.6, letterSpacing: '0.02em' }}>{q[lang]}</p>
                     </div>
                   ))}
                 </div>
@@ -86,10 +90,10 @@ export default function PersonDetail({ slug, navigate }: Props) {
                   {zh ? '代表项目' : 'project experience'}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {(zh ? person.zhExperience : person.experience).map((e, i) => (
+                  {person.experience.map((e, i) => (
                     <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline' }}>
                       <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#b4906e', flexShrink: 0, marginTop: '0.45rem' }} />
-                      <p style={{ fontSize: '0.78rem', color: '#495057', lineHeight: 1.6, letterSpacing: '0.02em' }}>{e}</p>
+                      <p style={{ fontSize: '0.78rem', color: '#495057', lineHeight: 1.6, letterSpacing: '0.02em' }}>{e[lang]}</p>
                     </div>
                   ))}
                 </div>
@@ -102,10 +106,10 @@ export default function PersonDetail({ slug, navigate }: Props) {
                     {zh ? '奖项与荣誉' : 'awards & recognition'}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {(zh ? person.zhAwards ?? person.awards : person.awards).map((a, i) => (
+                    {person.awards.map((a, i) => (
                       <div key={i} style={{ display: 'flex', gap: '0.75rem', alignItems: 'baseline' }}>
                         <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#b4906e', flexShrink: 0, marginTop: '0.45rem' }} />
-                        <p style={{ fontSize: '0.78rem', color: '#495057', lineHeight: 1.6, letterSpacing: '0.02em' }}>{a}</p>
+                        <p style={{ fontSize: '0.78rem', color: '#495057', lineHeight: 1.6, letterSpacing: '0.02em' }}>{a[lang]}</p>
                       </div>
                     ))}
                   </div>

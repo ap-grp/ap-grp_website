@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { PageState } from '../App'
-import { people } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { people } from '../content/people'
 import { useLang } from '../context/lang'
 
 interface Props {
@@ -26,11 +27,13 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
 }
 
 function PersonCard({ person, size, onClick, zh }: { person: (typeof people)[0]; size: 'large' | 'small'; onClick: () => void; zh: boolean }) {
+  const lang = zh ? 'zh' : 'en'
+
   return (
     <button
       onClick={onClick}
       style={{ display: 'block', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
-      aria-label={`view ${person.name} profile`}
+      aria-label={zh ? `查看${person.name.zh}简介` : `view ${person.name.en} profile`}
     >
       <div
         className="img-zoom"
@@ -40,9 +43,12 @@ function PersonCard({ person, size, onClick, zh }: { person: (typeof people)[0];
           overflow: 'hidden',
         }}
       >
-        <img
+        <ResponsiveImage
           src={person.imageUrl}
-          alt={zh ? person.zhName : person.name}
+          alt={person.name[lang]}
+          sizes={size === 'large'
+            ? '(max-width: 767px) calc((100vw - 5rem) / 2), (max-width: 1200px) 50vw, 520px'
+            : '(max-width: 767px) calc((100vw - 5rem) / 2), 360px'}
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
         />
       </div>
@@ -56,10 +62,10 @@ function PersonCard({ person, size, onClick, zh }: { person: (typeof people)[0];
             color: '#212529',
           }}
         >
-          {zh ? person.zhName : person.name}
+          {person.name[lang]}
         </p>
         <p style={{ fontSize: '0.7rem', color: '#9AA3AC', letterSpacing: '0.05em' }}>
-          {zh ? person.zhPosition : person.position}
+          {person.position[lang]}
         </p>
       </div>
     </button>
@@ -78,10 +84,10 @@ export default function People({ navigate }: Props) {
       <div style={{ padding: 'clamp(3rem,6vw,5rem) clamp(2rem,5vw,6rem) clamp(2rem,4vw,3rem)', borderBottom: '1px solid #dee2e6' }}>
         <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '0.75rem' }}>
-            {zh ? '团队成员' : 'the team'}
+            {zh ? '团队' : 'people'}
           </p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)', fontWeight: 300, letterSpacing: '-0.01em' }}>
-            {zh ? '团队' : 'people'}
+            {zh ? '我们的团队' : 'the team'}
           </h1>
         </div>
       </div>
@@ -90,7 +96,15 @@ export default function People({ navigate }: Props) {
         <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
 
           {/* Partners */}
-          <div className="partners-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2.5rem', marginBottom: 'clamp(3rem,6vw,5rem)' }}>
+          <div
+            className="partners-grid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+              gap: '2.5rem 2rem',
+              marginBottom: 'clamp(3rem,6vw,5rem)',
+            }}
+          >
             {partners.map((p, i) => (
               <FadeSection key={p.slug} delay={i * 0.1}>
                 <PersonCard person={p} size="large" onClick={() => navigate({ id: 'person-detail', slug: p.slug })} zh={zh} />
@@ -109,7 +123,7 @@ export default function People({ navigate }: Props) {
 
           <style>{`
             @media (max-width: 767px) {
-              .partners-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
+              .partners-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem !important; }
               .team-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1.25rem !important; }
             }
           `}</style>

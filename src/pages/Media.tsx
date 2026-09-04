@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { PageState } from '../App'
-import { articles } from '../data'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { articles } from '../content/media'
 import { useLang } from '../context/lang'
 
 interface Props {
@@ -61,10 +62,10 @@ export default function Media({ navigate, initialCategory }: Props) {
       <div style={{ padding: 'clamp(3rem,6vw,5rem) clamp(2rem,5vw,6rem) clamp(2rem,4vw,3rem)', borderBottom: '1px solid #dee2e6' }}>
         <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '0.75rem' }}>
-            {zh ? '期刊与新闻' : 'journal & press'}
+            {zh ? '媒体' : 'media'}
           </p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)', fontWeight: 300, letterSpacing: '-0.01em', marginBottom: '2.5rem' }}>
-            {zh ? '媒体' : 'media'}
+            {zh ? '最新动态' : 'latest updates'}
           </h1>
 
           {/* Filters + search */}
@@ -133,7 +134,14 @@ export default function Media({ navigate, initialCategory }: Props) {
                   >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))', gap: '3rem', alignItems: 'center' }}>
                       <div className="img-zoom" style={{ aspectRatio: '16/9', backgroundColor: '#e9ecef', overflow: 'hidden' }}>
-                        <img src={featured.imageUrl} alt={zh ? featured.zhTitle : featured.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                        <ResponsiveImage
+                          src={featured.imageUrl}
+                          alt={zh ? featured.zhTitle : featured.title}
+                          sizes="(max-width: 800px) calc(100vw - 4rem), 50vw"
+                          loading="eager"
+                          fetchPriority="high"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        />
                       </div>
                       <div>
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -173,7 +181,12 @@ export default function Media({ navigate, initialCategory }: Props) {
                           style={{ display: 'block', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
                         >
                           <div className="img-zoom" style={{ aspectRatio: '3/2', backgroundColor: '#e9ecef', overflow: 'hidden', marginBottom: '1.25rem' }}>
-                            <img src={a.imageUrl} alt={zh ? a.zhTitle : a.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                            <ResponsiveImage
+                              src={a.imageUrl}
+                              alt={zh ? a.zhTitle : a.title}
+                              sizes="(max-width: 767px) calc(100vw - 4rem), 480px"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            />
                           </div>
                           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem' }}>
                             <span style={{ fontSize: '0.6rem', letterSpacing: '0.1em', color: '#b4906e' }}>

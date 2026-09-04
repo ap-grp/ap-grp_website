@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PageState } from '../App'
+import ResponsiveImage from '../components/ResponsiveImage'
+import { officeMapPins } from '../content/offices'
+import { ourStoryImages } from '../content/our-story'
 import { useLang } from '../context/lang'
-import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps'
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
 
 interface Props {
   navigate: (p: PageState) => void
@@ -27,38 +30,58 @@ function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay
 
 // ─── World presence map ───────────────────────────────────────
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
+const MAP_WIDTH = 800
+const MAP_HEIGHT = 400
+const MAP_CENTER: [number, number] = [112, 22]
+const MAP_SCALE = 280
 
-type LabelAnchor = 'start' | 'end'
-interface CityPin {
-  key: string; en: string; zh: string
-  lon: number; lat: number
-  anchor: LabelAnchor; dx: number; dy: number
+function getMapPosition(lon: number, lat: number, dx: number, dy: number) {
+  const radians = Math.PI / 180
+  return {
+    left: ((MAP_WIDTH / 2 + MAP_SCALE * (lon - MAP_CENTER[0]) * radians + dx) / MAP_WIDTH) * 100,
+    top: ((MAP_HEIGHT / 2 - MAP_SCALE * (lat - MAP_CENTER[1]) * radians + dy) / MAP_HEIGHT) * 100,
+  }
 }
-// All labels are anchor='start' (left-aligned). dx/dy in SVG user units offset the
-// label group from the city point. Font sizes use CSS px (clamp) so they don't shrink
-// with the SVG on mobile — they stay at the CSS viewport-relative size.
+
+// Labels are fixed-size HTML overlays positioned from the same projection as the SVG.
+// This keeps their screen size stable while the map canvas crops or scales beneath them.
 // anchor='end'  → name + "+"  rendered right-to-left (name left of pin, right-justified)
 // anchor='start' → "+" + name  rendered left-to-right (name right of pin)
-const CITY_PINS: CityPin[] = [
-  { key: 'sg', en: 'singapore (hq)', zh: '新加坡（总部）', lon: 103.82, lat:  1.35, anchor: 'end',   dx: 8, dy: 0 },
-  { key: 'yn', en: 'yangon',          zh: '仰光',           lon:  96.17, lat: 16.85, anchor: 'end',   dx: 4, dy: 0 },
-  { key: 'ce', en: 'cebu',            zh: '宿务',           lon: 123.89, lat: 10.32, anchor: 'start', dx: -5, dy: 0 },
-  { key: 'bj', en: 'beijing',         zh: '北京',           lon: 116.40, lat: 39.90, anchor: 'start', dx: 0,  dy: 0 },
-  { key: 'sh', en: 'shanghai',        zh: '上海',           lon: 121.47, lat: 31.23, anchor: 'start', dx: -6,  dy: 0 },
-  { key: 'sz', en: 'suzhou',          zh: '苏州',           lon: 120.62, lat: 31.30, anchor: 'end',   dx: 0,  dy: 0 },
-]
-
 function WorldMap({ isZh }: { isZh: boolean }) {
   const [hovered, setHovered] = useState<string | null>(null)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const language = isZh ? 'zh' : 'en'
+
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+  }, [])
+
+  const showTooltip = (slug: string) => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    setHovered(slug)
+    setTooltipOpen(true)
+  }
+
+  const hideTooltip = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
+    // Leave a short bridge between the SVG label and its HTML popup so moving
+    // the pointer into the popup does not interrupt the hover state.
+    closeTimer.current = setTimeout(() => {
+      setTooltipOpen(false)
+      closeTimer.current = setTimeout(() => setHovered(null), 320)
+    }, 120)
+  }
 
   return (
-    <ComposableMap
-      projection="geoEquirectangular"
-      projectionConfig={{ center: [112, 22], scale: 420 }}
-      width={800}
-      height={480}
-      style={{ width: '100%', height: 'auto', display: 'block' }}
-    >
+    <div className="story-map-canvas" style={{ position: 'relative' }}>
+      <ComposableMap
+        projection="geoEquirectangular"
+        projectionConfig={{ center: MAP_CENTER, scale: MAP_SCALE }}
+        width={MAP_WIDTH}
+        height={MAP_HEIGHT}
+        style={{ width: '100%', height: 'auto', display: 'block', userSelect: 'none' }}
+      >
       <Geographies geography={GEO_URL}>
         {({ geographies }) =>
           geographies.map((geo) => (
@@ -69,97 +92,223 @@ function WorldMap({ isZh }: { isZh: boolean }) {
               stroke="#ffffff"
               strokeWidth={0.6}
               tabIndex={-1}
-              style={{ outline: 'none' }}
+              focusable="false"
+              aria-hidden="true"
+              pointerEvents="none"
             />
           ))
         }
       </Geographies>
 
-      {CITY_PINS.map((city) => {
-        const isHov = hovered === city.key
-        const label = isZh ? city.zh : city.en
-        // CSS px font sizes — don't scale with the SVG, so text stays readable on mobile
-        const plusFs  = isHov ? 'clamp(18px,2.2vw,26px)' : 'clamp(14px,1.7vw,20px)'
-        const labelFs = isHov ? 'clamp(12px,1.4vw,17px)' : 'clamp(10px,1.1vw,13px)'
+      </ComposableMap>
+
+      {officeMapPins.map((office) => {
+        const isDisplayed = hovered === office.slug
+        const isActive = isDisplayed && tooltipOpen
+        const position = getMapPosition(office.lon, office.lat, office.dx, office.dy)
+        const anchoredTransform = office.anchor === 'end' ? 'translateX(-100%)' : 'translateX(0)'
+
         return (
-          <Marker key={city.key} coordinates={[city.lon, city.lat]}>
-            <g
-              transform={`translate(${city.dx},${city.dy})`}
-              onMouseEnter={() => setHovered(city.key)}
-              onMouseLeave={() => setHovered(null)}
-              style={{ cursor: 'default' }}
+          <div
+            key={`${office.slug}-tooltip`}
+            role="tooltip"
+            aria-hidden={!isActive}
+            onMouseEnter={() => showTooltip(office.slug)}
+            onMouseLeave={hideTooltip}
+            style={{
+              position: 'absolute',
+              left: `calc(${position.left}% ${office.anchor === 'end' ? '+' : '-'} 0.8rem)`,
+              top: `calc(${position.top}% - 2rem)`,
+              width: 'min(320px, calc(100vw - 2rem))',
+              height: '160px',
+              transform: anchoredTransform,
+              zIndex: isActive ? 20 : 2,
+              visibility: isDisplayed ? 'visible' : 'hidden',
+              pointerEvents: isDisplayed ? 'auto' : 'none',
+              backgroundColor: isActive ? 'rgba(73, 80, 87, 0.84)' : 'rgba(73, 80, 87, 0)',
+              border: `1px solid ${isActive ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0)'}`,
+              boxShadow: isActive ? '0 12px 28px rgba(33, 37, 41, 0.18)' : '0 0 0 rgba(33, 37, 41, 0)',
+              padding: '0.8rem',
+              color: 'rgba(255, 255, 255, 0.82)',
+              fontSize: '0.68rem',
+              lineHeight: 1.5,
+              letterSpacing: '0.02em',
+              boxSizing: 'border-box',
+              userSelect: 'text',
+              willChange: 'background-color, box-shadow',
+              transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+            }}
+          >
+            <address
+              style={{
+                margin: '3.5rem 0 0',
+                fontStyle: 'normal',
+                textAlign: 'left',
+                cursor: 'text',
+                userSelect: 'text',
+                opacity: isActive ? 1 : 0,
+                transform: `translateY(${isActive ? '0' : '5px'})`,
+                transition: `opacity 0.2s ease ${isActive ? '0.2s' : '0s'}, transform 0.2s ease ${isActive ? '0.2s' : '0s'}`,
+              }}
             >
-              <text
-                textAnchor={city.anchor}
-                dominantBaseline="central"
-                fill="#495057"
-                style={{ fontFamily: 'inherit', userSelect: 'none' }}
-              >
-                {city.anchor === 'end' ? (
-                  // name right-of-left-of-pin: "city name +" — text justified right, ending at pin
-                  <>
-                    <tspan style={{ fontSize: labelFs, letterSpacing: '0.04em', transition: 'font-size 0.2s ease' }}>{label}{' '}</tspan>
-                    <tspan style={{ fontSize: plusFs, fontWeight: '300', transition: 'font-size 0.2s ease' }}>+</tspan>
-                  </>
-                ) : (
-                  // name right of pin: "+ city name"
-                  <>
-                    <tspan style={{ fontSize: plusFs, fontWeight: '300', transition: 'font-size 0.2s ease' }}>+</tspan>
-                    <tspan style={{ fontSize: labelFs, letterSpacing: '0.04em', transition: 'font-size 0.2s ease' }}>{' '}{label}</tspan>
-                  </>
-                )}
-              </text>
-            </g>
-          </Marker>
+              {office.address[language].map((line) => (
+                <span key={line} style={{ display: 'block' }}>{line}</span>
+              ))}
+              {office.phone && (
+                <span style={{ display: 'block', marginTop: '0.35rem' }}>t: {office.phone}</span>
+              )}
+              <span style={{ display: 'block', marginTop: office.phone ? 0 : '0.35rem' }}>e: {office.email}</span>
+            </address>
+          </div>
         )
       })}
-    </ComposableMap>
+
+      {officeMapPins.map((office) => {
+        const isActive = hovered === office.slug && tooltipOpen
+        const label = office.label[language]
+        const position = getMapPosition(office.lon, office.lat, office.dx, office.dy)
+        const officeDetails = [
+          ...office.address[language],
+          ...(office.phone ? [`t: ${office.phone}`] : []),
+          `e: ${office.email}`,
+        ].join(', ')
+
+        return (
+          <div
+            key={`${office.slug}-tag`}
+            role="button"
+            tabIndex={0}
+            aria-label={`${label}: ${officeDetails}`}
+            aria-expanded={isActive}
+            onMouseEnter={() => showTooltip(office.slug)}
+            onMouseLeave={hideTooltip}
+            onFocus={() => showTooltip(office.slug)}
+            onBlur={hideTooltip}
+            onClick={() => isActive ? hideTooltip() : showTooltip(office.slug)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') hideTooltip()
+            }}
+            style={{
+              position: 'absolute',
+              left: `${position.left}%`,
+              top: `${position.top}%`,
+              zIndex: isActive ? 30 : 3,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.28em',
+              transform: office.anchor === 'end' ? 'translate(-100%, -50%)' : 'translate(0, -50%)',
+              color: isActive ? '#ffffff' : '#495057',
+              cursor: 'pointer',
+              outline: 'none',
+              userSelect: 'none',
+              whiteSpace: 'nowrap',
+              lineHeight: 1,
+              transition: 'color 0.3s ease',
+            }}
+          >
+            {office.anchor === 'end' ? (
+              <>
+                <span style={{ fontSize: isActive ? '30px' : '25px', letterSpacing: '0.04em', transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>{label}</span>
+                <span style={{ fontSize: isActive ? '37px' : '32px', fontWeight: 300, transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>+</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize: isActive ? '37px' : '32px', fontWeight: 300, transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>+</span>
+                <span style={{ fontSize: isActive ? '30px' : '25px', letterSpacing: '0.04em', transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>{label}</span>
+              </>
+            )}
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
 const timeline = {
   en: [
-    { year: '2004', event: "a+pgrp founded by liew soong shoon and mei mei leong in singapore. the practice begins with residential and small commercial commissions." },
+    { year: '1997', event: "a+p consultants founded by liew soong shoon. the practice begins with residential and small commercial commissions." },
     { year: '2008', event: "first international commission — a boutique resort in thailand — marks the beginning of the practice's regional expansion." },
     { year: '2012', event: "the practice grows to 25 people and opens a project office in kuala lumpur to support growing regional commissions." },
-    { year: '2015', event: "establishment of dedicated interior design and landscape design studios within the practice." },
+    { year: '2015', event: "establishment of dedicatsed interior design and landscape design studios within the practice." },
     { year: '2017', event: "first urban masterplanning commission — a 180-hectare township development in myanmar — signals a significant expansion of scale and scope." },
     { year: '2019', event: "the practice is awarded two sia architectural design awards, recognising excellence across residential and hospitality categories." },
     { year: '2021', event: "a+pgrp is appointed to the marina bay precinct urban design study, one of singapore's most significant planning commissions." },
-    { year: '2023', event: "twenty years of practice. the studio expands into new premises at science park. the pavilion hotel, chiang mai, opens." },
+    { year: '2025', event: "mei mei leong joins as partner, marking the formation of a+p grp llp and the firm's next chapter." },
   ],
   zh: [
-    { year: '2004', event: '廖松顺与梁美美于新加坡创立a+pgrp，事务所以住宅及小型商业项目起步。' },
+    { year: '1997', event: '廖松顺于1997年在新加坡创立a+pgrp，事务所以住宅及小型商业项目起步。' },
     { year: '2008', event: '首个国际项目——泰国一家精品度假村——标志着事务所区域扩张的开始。' },
     { year: '2012', event: '团队规模扩展至25人，并在吉隆坡开设项目办公室以支持增长中的区域业务。' },
     { year: '2015', event: '在事务所内成立专属室内设计与景观设计工作室。' },
     { year: '2017', event: '首个城市总体规划项目——缅甸一个180公顷的城镇开发项目——标志着事务所在规模与范围上的重大扩张。' },
     { year: '2019', event: '事务所荣获两项新加坡建筑师学会建筑设计奖，分别在住宅与酒店类别中斩获殊荣。' },
     { year: '2021', event: 'a+pgrp受委托开展滨海湾片区城市设计研究，这是新加坡最重要的规划项目之一。' },
-    { year: '2023', event: '二十周年。工作室迁入科学园新址扩展办公。亭阁酒店（清迈）正式开业。' },
+    { year: '2025', event: '梁美美加入成为合伙人，标志着 a+p grp llp 的成立，开启事务所发展的新篇章。' },
   ],
 }
 
 const awards = {
   en: [
-    { year: '2023', title: 'sia architectural design award, residential category' },
-    { year: '2022', title: "fiabci prix d'excellence, merit award" },
-    { year: '2022', title: 'id+a asia interior design award, hospitality' },
-    { year: '2021', title: 'singapore interior design awards, best hospitality' },
-    { year: '2020', title: 'frame awards interior design, merit' },
-    { year: '2019', title: 'sia architectural design award (x2)' },
-    { year: '2018', title: 'aia singapore design award' },
-    { year: '2016', title: 'bd world architecture festival — shortlisted' },
+    { year: '2019', title: "28 jalan buroh: \n" + 
+      'bca greenmark certified \n' +
+      '\n' + 'defu industrial city: \n' + 
+      'bca greenmark gold awards'},
+    { year: '2018', title: 'min residences: \n' + 
+      'best condo design asia property awards 2018 \n' + 
+      'best mixed use development asia property awards 2018 \n' + 
+      'best condo design asia property awards 2018 \n' + 
+      'best universal design asia property awards 2018 \n' + 
+      '\n' + 'm tower: \n' + 
+      'best office design asia property awards 2018 \n' + 
+      'best universal design asia property awards 2018 \n' + 
+      '\n' + 'mottama centre: \n' + 
+      'best retail development asia property awards 2018' },
+    { year: '2017', title: "myanmar engineering council design competition, 1st winner \n" + 
+      'myanmar architects council design competition, 2nd winner' },
+    { year: '2015', title: 'chengdu integrated bus terminal design competition, 2nd place' },
+    { year: '2010', title: 'qingdao north highspeed train station competition, finalist \n' + 
+      'chengdu project "198" master planning competition, 1st winner \n' + 
+      'wencheng masterplan, hainan design competition, 1st winner \n' + 
+      'tai yuan tecnology park, wuxi design competition, 2nd place'},
+    { year: '2006', title: 'singapore institute of architects, façade gold awards \n' + 
+      'singapore institute of architects, gold awards (industrial category) \n' + 
+      'suzhou wuzhong technology park design competition, 2nd winner \n' + 
+      'yixing eco-sustainable city, 2nd winner' },
+    { year: '2005', title: 'foreigner town planning license granted by beijing construction ministry \n' + 
+      'beijing lengqian new estate town. 94 ha. 3rd place' },
+    { year: '2004', title: 'building & construction authority (bca) best buildable design award \n' + 
+      'suzhou south bus terminal, 1st winner'},
   ],
   zh: [
-    { year: '2023', title: '新加坡建筑师学会建筑设计奖 住宅类' },
-    { year: '2022', title: '国际房地产联合会卓越奖 优秀奖' },
-    { year: '2022', title: 'ID+A亚洲室内设计奖 酒店类' },
-    { year: '2021', title: '新加坡室内设计奖 最佳酒店项目' },
-    { year: '2020', title: 'Frame Awards 室内设计 优秀奖' },
-    { year: '2019', title: '新加坡建筑师学会建筑设计奖（两项）' },
-    { year: '2018', title: '美国建筑师学会新加坡设计奖' },
-    { year: '2016', title: 'BD世界建筑节 入围' },
+    { year: '2019', title: "18布罗路: \n" + 
+      '新加坡建设局（bca）绿色建筑标志认证 \n' +
+      '\n' + '德福工业城: \n' + 
+      '新加坡建设局（bca）绿色建筑标志金级加强认证（green mark gold plus）'},
+    { year: '2018', title: 'min residences: \n' + 
+      '2018 亚洲地产大奖 最佳公寓设计 \n' + 
+      '2018 亚洲地产大奖 最佳综合开发 \n' + 
+      '2018 亚洲地产大奖 最佳公寓设计 \n' + 
+      '2018 亚洲地产大奖 最佳通用设计 \n' + 
+      '\n' + 'm 塔: \n' + 
+      '2018 亚洲地产大奖 最佳办公楼设计 \n' + 
+      '2018 亚洲地产大奖 最佳通用设计 \n' + 
+      '\n' + 'mottama centre: \n' + 
+      '2018 亚洲地产大奖 最佳零售开发' },
+    { year: '2017', title: "缅甸工程师委员会设计竞赛，一等奖 \n" + 
+      '缅甸建筑师委员会设计竞赛，二等奖' },
+    { year: '2015', title: '成都综合客运枢纽设计竞赛，二等奖' },
+    { year: '2010', title: '青岛北高速铁路站设计竞赛，入围 \n' + 
+      '成都项目 "198" 总体规划竞赛，一等奖 \n' + 
+      '文城镇总体规划，海南设计竞赛，一等奖 \n' + 
+      '太原科技园区，无锡设计竞赛，二等奖'},
+    { year: '2006', title: '新加坡建筑师学会（sia）立面设计金奖 \n' + 
+      '新加坡建筑师学会 (sia)，金奖 (工业类) \n' + 
+      '苏州吴中科技园区设计竞赛，二等奖 \n' + 
+      '宜兴生态可持续城市，二等奖' },
+    { year: '2005', title: '北京市建设主管部门颁发外国机构城市规划资质许可证 \n' + 
+      '北京冷泉新城规划（94公顷），三等奖' },
+    { year: '2004', title: '新加坡建设局（bca）最佳可建造性设计奖 \n' + 
+      '苏州南部客运枢纽设计竞赛，一等奖'},
   ],
 }
 
@@ -167,13 +316,13 @@ const philosophy = {
   en: [
     { title: 'context first', body: 'every project begins with a rigorous reading of its physical, cultural, and social context. we believe that architecture must emerge from its place, not be imposed upon it.' },
     { title: 'human scale', body: 'we design for people, not for photographs. the quality of an environment is measured by how it feels to inhabit — the quality of light, the pleasure of movement, the comfort of shelter.' },
-    { title: 'material honesty', body: 'we believe in the intelligence of materials. our architecture uses materials that are true to their nature, sustainable in their sourcing, and beautiful in their aging.' },
+    { title: 'design through collaboration', body: 'We believe exceptional design emerges through collaboration, bringing together clients, context, and creative exploration to shape thoughtful, enduring solutions.' },
     { title: 'enduring quality', body: 'we resist the fashionable in favour of the lasting. our ambition is to create buildings and places that remain relevant, loved, and valued for generations.' },
   ],
   zh: [
     { title: '场所优先', body: '每个项目都始于对其物理、文化与社会背景的严格解读。我们相信建筑必须从场所中生长，而非强加于其上。' },
     { title: '人本尺度', body: '我们为人而设计，而非为照片。环境的品质由人居其中的感受衡量——光线的质量、移动的愉悦、遮蔽的舒适。' },
-    { title: '材料诚实', body: '我们相信材料的智慧。我们的建筑使用忠于其本性、可持续采购、随时间老化而愈显美丽的材料。' },
+    { title: '协同设计', body: '我们相信，卓越的设计源于协作，通过融合客户愿景、场地特质与创新思维，创造兼具深度与持久价值的设计。' },
     { title: '持久品质', body: '我们抵制流行，追求持久。我们的理想是创造代代相传、始终被珍视与热爱的建筑与场所。' },
   ],
 }
@@ -193,9 +342,12 @@ export default function OurStory({ navigate }: Props) {
           padding: 'clamp(5rem,10vw,9rem) clamp(2rem,5vw,6rem)',
         }}
       >
-        <img
-          src="https://images.unsplash.com/photo-1522743791393-522312deeebf?w=1920&h=800&fit=crop&auto=format&q=80"
+        <ResponsiveImage
+          src={ourStoryImages.hero}
           alt="architecture"
+          sizes="100vw"
+          loading="eager"
+          fetchPriority="high"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }}
         />
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '760px' }}>
@@ -203,7 +355,7 @@ export default function OurStory({ navigate }: Props) {
             {zh ? '关于我们' : 'about us'}
           </p>
           <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 3.8rem)', fontWeight: 300, color: '#ffffff', lineHeight: 1.25, letterSpacing: '-0.01em', marginBottom: '1.75rem' }}>
-            {zh ? '二十年，以目的设计场所' : 'twenty years of designing places with purpose'}
+            {zh ? '三十年，以目的设计场所' : 'thirty years of designing places with purpose'}
           </h1>
           <p style={{ fontSize: '0.88rem', lineHeight: 1.85, color: 'rgba(255,255,255,0.6)', maxWidth: '560px', letterSpacing: '0.02em' }}>
             {zh
@@ -219,19 +371,24 @@ export default function OurStory({ navigate }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'clamp(3rem,6vw,6rem)', alignItems: 'start' }}>
             <FadeSection>
               <h2 style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.2rem)', fontWeight: 300, lineHeight: 1.3, letterSpacing: '-0.01em', border: 'none', textAlign: 'left' }}>
-                {zh ? '二十年，以目的设计场所' : 'twenty years of designing places with purpose'}
+                {zh ? '三十年，以目的设计场所' : 'thirty years of designing places with purpose'}
               </h2>
             </FadeSection>
             <FadeSection delay={0.15}>
-              <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '1.25rem', letterSpacing: '0.02em', textAlign: 'justify' }}>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '1.25rem', letterSpacing: '0.02em' }}>
                 {zh
-                  ? 'a+pgrp由廖松顺与梁美美于2004年创立，两人共同坚信，最好的建筑与其服务的人们的生活密不可分。二十年过去，这一信念始终未变。'
-                  : 'a+pgrp was founded in 2004 by liew soong shoon and mei mei leong, who shared a conviction that architecture at its best is inseparable from the lives of the people it serves. twenty years on, that conviction has not changed.'}
+                  ? 'a+p grp 于 1997 年在新加坡成立，前身为 a+p consultants。自成立以来，公司积极拓展业务版图，业务范围涵盖多元项目类型，包括综合顾问服务、可行性研究、城市规划、城市设计、建筑设计、景观设计、室内设计及工程顾问服务。'
+                  : 'a+p grp was inaugurated as a+p consultants in singapore in 1997. since then, it has expanded voraciously into varied project types ranging from integrated consultancy services – feasibility studies, urban planning, urban design, architecture, landscape design, interior design, and engineering services.'}
               </p>
-              <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', letterSpacing: '0.02em', textAlign: 'justify' }}>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', marginBottom: '1.25rem', letterSpacing: '0.02em' }}>
                 {zh
-                  ? '我们是一群充满好奇心、乐于协作的人，对所创造环境的品质有着深切关注。我们跨建筑、室内设计、景观、城市规划与开发多个领域工作，以同样的认真与用心对待每一个规模与类型的项目。'
-                  : 'we are a studio of curious, collaborative people who care deeply about the quality of the environments we create. we work across architecture, interior design, landscape, urban planning, and development, bringing the same seriousness and care to every scale and type of project.'}
+                  ? '截至目前，我们已在新加坡、北京、上海、苏州、南京、宿务及仰光设有办公室。公司拥有约 100 名专业人才组成的国际化团队，汇聚了经验丰富的规划师、建筑师、设计师及工程师，共同为客户提供高品质的专业服务。'
+                  : 'To date, we pride ourselves on having offices in singapore, beijing, shanghai, suzhou, nanjing, cebu and yangon. our combined team of 100 people comprises talented and experienced planners, architects, designers, and engineers.'}
+              </p>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', letterSpacing: '0.02em' }}>
+                {zh
+                  ? '2025 年 8 月，随着新合伙人的加入及业务进一步拓展，a+p grp llp（新加坡）正式成立。'
+                  : 'in august 2025, with new partners and further expansion, a+p grp llp (singapore) was formed.'}
               </p>
             </FadeSection>
           </div>
@@ -240,9 +397,10 @@ export default function OurStory({ navigate }: Props) {
 
       {/* Full-width image */}
       <div style={{ height: 'clamp(300px, 50vw, 550px)', overflow: 'hidden', backgroundColor: '#e9ecef' }}>
-        <img
-          src="https://images.unsplash.com/photo-1576831371356-d6e9411ae501?w=1920&h=700&fit=crop&auto=format&q=80"
+        <ResponsiveImage
+          src={ourStoryImages.philosophy}
           alt="a+pgrp project"
+          sizes="100vw"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
@@ -273,8 +431,8 @@ export default function OurStory({ navigate }: Props) {
       </section>
 
       {/* World presence map */}
-      <section style={{ paddingTop: 'clamp(4rem,7vw,6rem)', paddingBottom: 'clamp(3rem,5vw,4rem)' }}>
-        <div style={{ maxWidth: '1560px', margin: '0 auto', padding: '0 clamp(2rem,5vw,6rem)', marginBottom: '2.5rem' }}>
+      <section style={{ paddingTop: 'clamp(4rem,7vw,6rem)', paddingBottom: 'clamp(3rem,5vw,4rem)', padding: 'clamp(4rem,7vw,6rem) clamp(2rem,5vw,6rem) 0' }}>
+        <div style={{ maxWidth: '1560px', margin: '0 auto', marginBottom: '2.5rem' }}>
           <FadeSection>
             <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '1.5rem' }}>
               {zh ? '业务范围' : 'our presence'}
@@ -285,7 +443,9 @@ export default function OurStory({ navigate }: Props) {
           </FadeSection>
         </div>
         <FadeSection delay={0.1}>
-          <WorldMap isZh={zh} />
+          <div className="story-map-viewport">
+            <WorldMap isZh={zh} />
+          </div>
         </FadeSection>
       </section>
 
@@ -324,9 +484,10 @@ export default function OurStory({ navigate }: Props) {
 
       {/* Full-width image */}
       <div style={{ height: 'clamp(280px, 40vw, 500px)', overflow: 'hidden', backgroundColor: '#e9ecef' }}>
-        <img
-          src="https://images.unsplash.com/photo-1610696338308-dd48c9da0c72?w=1920&h=600&fit=crop&auto=format&q=80"
+        <ResponsiveImage
+          src={ourStoryImages.recognition}
           alt="urban design"
+          sizes="100vw"
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
       </div>
@@ -339,9 +500,14 @@ export default function OurStory({ navigate }: Props) {
               <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '1.5rem' }}>
                 {zh ? '荣誉' : 'recognition'}
               </p>
-              <h2 style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.2rem)', fontWeight: 300, letterSpacing: '-0.01em' }}>
+              <h2 style={{ fontSize: 'clamp(1.5rem, 2.8vw, 2.2rem)', fontWeight: 300, letterSpacing: '-0.01em', marginBottom: '1.5rem' }}>
                 {zh ? '奖项与成就' : 'awards &\nachievements'}
               </h2>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.9, color: '#495057', letterSpacing: '0.02em' }}>
+                {zh
+                  ? '2005年，a+p grp 获得中华人民共和国政府颁发的首个城乡规划编制资质证书（许可证编号：2005001），成为首批获准取得该资质的国有及精选外资规划咨询机构之一。'
+                  : 'In 2005, a+p grp obtained the first Urban and Town Planning Licence (Licence No: 2005001) from the Government of the People’s Republic of China—an accreditation issued only to a few state-approved and selected foreign consultancies.'}
+              </p>
             </FadeSection>
             <FadeSection delay={0.1}>
               <div>
@@ -357,7 +523,7 @@ export default function OurStory({ navigate }: Props) {
                     }}
                   >
                     <span style={{ fontSize: '0.65rem', color: '#b4906e', letterSpacing: '0.08em', flexShrink: 0 }}>{a.year}</span>
-                    <span style={{ fontSize: '0.8rem', color: '#495057', letterSpacing: '0.02em', lineHeight: 1.6 }}>{a.title}</span>
+                    <span style={{ fontSize: '0.8rem', color: '#495057', letterSpacing: '0.02em', lineHeight: 1.6, whiteSpace: "pre-line"}}>{a.title}</span>
                   </div>
                 ))}
               </div>

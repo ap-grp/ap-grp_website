@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { PageState } from '../App'
+import { headquarters, otherOffices } from '../content/offices'
 import { useLang } from '../context/lang'
 
 interface Props {
@@ -70,10 +71,10 @@ export default function Contact({ navigate: _navigate }: Props) {
       <div style={{ padding: 'clamp(4rem,8vw,7rem) clamp(2rem,5vw,6rem) clamp(2rem,4vw,3rem)', borderBottom: '1px solid #dee2e6' }}>
         <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
           <p style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#b4906e', marginBottom: '0.75rem' }}>
-            {zh ? '与我们联系' : 'get in touch'}
+            {zh ? '联系' : 'contact'}
           </p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.8rem)', fontWeight: 300, letterSpacing: '-0.01em' }}>
-            {zh ? '联系我们' : 'contact'}
+            {zh ? '与我们联系' : 'get in touch'}
           </h1>
         </div>
       </div>
@@ -89,18 +90,18 @@ export default function Contact({ navigate: _navigate }: Props) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem', alignItems: 'start', marginBottom: '4rem' }}>
             <div>
               <h2 style={{ fontSize: '0.95rem', fontWeight: 400, letterSpacing: '0.05em', marginBottom: '1.5rem', color: '#212529' }}>
-                {zh ? '新加坡（企业总部）' : 'singapore (corporate hq)'}
+                {headquarters.name[lang]}
               </h2>
               <address style={{ fontStyle: 'normal', fontSize: '0.82rem', lineHeight: 2.1, color: '#495057', letterSpacing: '0.03em', marginBottom: '2rem' }}>
-                {zh ? '科学园路43号' : '43 science park road'}<br />
-                {zh ? '#01-11 科学园2期' : '#01-11 science park 2'}<br />
-                {zh ? '新加坡 117408' : 'singapore 117408'}<br />
-                <a href="mailto:info@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none' }}>
-                  info@ap-grp.com
+                {headquarters.address[lang].map((line) => (
+                  <span key={line}>{line}<br /></span>
+                ))}
+                <a href={`mailto:${headquarters.email}`} style={{ color: '#b4906e', textDecoration: 'none' }}>
+                  e: {headquarters.email}
                 </a>
               </address>
               <a
-                href="https://maps.app.goo.gl/AUXHGuerxa82f9Px8"
+                href={headquarters.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -129,13 +130,13 @@ export default function Contact({ navigate: _navigate }: Props) {
             {/* Map */}
             <div style={{ aspectRatio: '4/3', backgroundColor: '#e9ecef', overflow: 'hidden' }}>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.8096865185225!2d103.7804712756792!3d1.288359261768946!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da1972d88d3dd7%3A0x4be1ce10337fa18f!2sA%2BPgrp!5e0!3m2!1sen!2ssg!4v1785294402899!5m2!1sen!2ssg"
+                src={headquarters.mapEmbedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 'none', display: 'block' }}
                 allowFullScreen={true}
                 loading="lazy"
-                title="a+pgrp singapore location"
+                title={`a+pgrp ${headquarters.name.en} location`}
                 referrerPolicy="no-referrer-when-downgrade"
               />
             </div>
@@ -147,62 +148,22 @@ export default function Contact({ navigate: _navigate }: Props) {
               {zh ? '其他办公室' : 'other offices'}
             </p>
             <div className="other-offices-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2.5rem 3rem' }}>
-              {/* Row 1: Beijing, Shanghai, Suzhou */}
-              <div>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.1em', color: '#212529', marginBottom: '1rem' }}>
-                  {zh ? '北京（中国总部）' : 'beijing (china hq)'}
-                </h3>
-                <address style={{ fontStyle: 'normal', fontSize: '0.78rem', lineHeight: 2, color: '#495057', letterSpacing: '0.02em' }}>
-                  {zh ? '西城区礼士路北街135号35号楼三层，北京 100037' : <>3rd floor, bldg 35, no. 135 north lishi road, xicheng, beijing 100037</>}<br />
-                  t: 010-68330573<br />
-                  <a href="mailto:ap-bj@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none' }}>ap-bj@ap-grp.com</a>
-                </address>
-              </div>
-
-              <div>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.1em', color: '#212529', marginBottom: '1rem' }}>
-                  {zh ? '上海，中国' : 'shanghai, china'}
-                </h3>
-                <address style={{ fontStyle: 'normal', fontSize: '0.78rem', lineHeight: 2, color: '#495057', letterSpacing: '0.02em' }}>
-                  {zh ? '四平路1188号海洋广场2302室，上海 200092' : <>2302, ocean plaza, 1188 siping road, shanghai 200092</>}<br />
-                  t: 021-65797261<br />
-                  <a href="mailto:ap-sh@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none' }}>ap-sh@ap-grp.com</a>
-                </address>
-              </div>
-
-              <div>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.1em', color: '#212529', marginBottom: '1rem' }}>
-                  {zh ? '苏州，中国' : 'suzhou, china'}
-                </h3>
-                <address style={{ fontStyle: 'normal', fontSize: '0.78rem', lineHeight: 2, color: '#495057', letterSpacing: '0.02em' }}>
-                  {zh ? '越湾路10号汇湖商务楼B座803室，苏州园区 215123' : <>803, bldg b, huihu building, no. 10 yuewan road, suzhou park 215123</>}<br />
-                  t: 0512-62761650<br />
-                  <a href="mailto:ap-sz@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none' }}>ap-sz@ap-grp.com</a>
-                </address>
-              </div>
-
-              {/* Row 2: Yangon, Cebu */}
-              <div>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.1em', color: '#212529', marginBottom: '1rem' }}>
-                  {zh ? '仰光，缅甸' : 'yangon, myanmar'}
-                </h3>
-                <address style={{ fontStyle: 'normal', fontSize: '0.78rem', lineHeight: 2, color: '#495057', letterSpacing: '0.02em' }}>
-                  {zh ? '卡巴耶佛塔路56号，仰光，缅甸 11081' : <>56 kabaraye pagoda road, yangon, myanmar 11081</>}<br />
-                  t: +95 1666 710<br />
-                  <a href="mailto:info@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none' }}>info@ap-grp.com</a>
-                </address>
-              </div>
-
-              <div>
-                <h3 style={{ fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.1em', color: '#212529', marginBottom: '1rem' }}>
-                  {zh ? '宿务，菲律宾' : 'cebu, philippines'}
-                </h3>
-                <address style={{ fontStyle: 'normal', fontSize: '0.78rem', lineHeight: 2, color: '#495057', letterSpacing: '0.02em' }}>
-                  {zh ? 'P阿尔门达斯延伸段8号地块8号楼821单元，宿务，菲律宾 6000' : <>unit 821, lot 8 bldg, p almendas ext. cebu, philippines 6000</>}<br />
-                  t: +63 32 260 6918<br />
-                  <a href="mailto:info@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none' }}>info@ap-grp.com</a>
-                </address>
-              </div>
+              {otherOffices.map((office) => (
+                <div key={office.slug}>
+                  <h3 style={{ fontSize: '0.72rem', fontWeight: 500, letterSpacing: '0.1em', color: '#212529', marginBottom: '1rem' }}>
+                    {office.name[lang]}
+                  </h3>
+                  <address style={{ fontStyle: 'normal', fontSize: '0.78rem', lineHeight: 2, color: '#495057', letterSpacing: '0.02em' }}>
+                    {office.address[lang].map((line) => (
+                      <span key={line}>{line}<br /></span>
+                    ))}
+                    {office.phone && <>t: {office.phone}<br /></>}
+                    <a href={`mailto:${office.email}`} style={{ color: '#b4906e', textDecoration: 'none' }}>
+                      e: {office.email}
+                    </a>
+                  </address>
+                </div>
+              ))}
             </div>
           </div>
         </div>

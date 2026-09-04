@@ -1,6 +1,8 @@
 node_modules/
+.pnpm-store/
 dist/
 .vite/
+.cache/responsive-images/
 
 .env
 .env.*
