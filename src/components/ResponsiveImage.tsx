@@ -1,4 +1,4 @@
-import type { ImgHTMLAttributes } from 'react'
+import { useState, type ImgHTMLAttributes, type SyntheticEvent } from 'react'
 import { getResponsiveImage } from '../lib/responsiveImages'
 
 interface ResponsiveImageProps
@@ -17,9 +17,17 @@ export default function ResponsiveImage({
   alt = '',
   loading = 'lazy',
   decoding = 'async',
+  onLoad,
   ...imageProps
 }: ResponsiveImageProps) {
   const responsiveImage = getResponsiveImage(src)
+  const [loadedSource, setLoadedSource] = useState<string | null>(null)
+  const softlyReveal = loading === 'eager'
+
+  const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    setLoadedSource(src)
+    onLoad?.(event)
+  }
 
   if (!responsiveImage) {
     return (
@@ -30,12 +38,19 @@ export default function ResponsiveImage({
         sizes={sizes}
         loading={loading}
         decoding={decoding}
+        onLoad={handleLoad}
       />
     )
   }
 
   return (
-    <picture>
+    <picture
+      className={
+        softlyReveal
+          ? `soft-image-reveal${loadedSource === src ? ' is-loaded' : ''}`
+          : undefined
+      }
+    >
       <source
         type="image/webp"
         srcSet={createSrcSet(responsiveImage.webp)}
@@ -50,6 +65,7 @@ export default function ResponsiveImage({
         sizes={sizes}
         loading={loading}
         decoding={decoding}
+        onLoad={handleLoad}
       />
     </picture>
   )
