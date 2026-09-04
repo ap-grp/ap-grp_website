@@ -1,14 +1,13 @@
 import crypto from 'node:crypto'
+import { createReadStream } from 'node:fs'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
 import type { Plugin, ResolvedConfig } from 'vite'
 
 const RESPONSIVE_IMAGE_ROUTE = '@responsive-images'
-const PIPELINE_VERSION = '1'
-const DEFAULT_WIDTHS = [480, 800, 1200, 1600, 2400]
-
-type OutputFormat = 'avif' | 'webp'
+const PIPELINE_VERSION = '3'
+const DEFAULT_WIDTHS = [480, 960, 1600, 2400]
 
 interface ResponsiveImagesOptions {
   widths?: number[]
@@ -134,6 +133,24 @@ function createTaskLimiter(concurrency: number) {
 }
 
 const limitImageProcessing = createTaskLimiter(2)
+const limitFileHashing = createTaskLimiter(4)
+
+function hashSourceFile(sourcePath: string, relativePath: string) {
+  return limitFileHashing(
+    () =>
+      new Promise<string>((resolve, reject) => {
+        const hash = crypto
+          .createHash('sha256')
+          .update(PIPELINE_VERSION)
+          .update(relativePath)
+        const stream = createReadStream(sourcePath)
+
+        stream.on('data', (chunk) => hash.update(chunk))
+        stream.on('error', reject)
+        stream.on('end', () => resolve(hash.digest('hex').slice(0, 12)))
+      }),
+  )
+}
 
 function parseResponsiveImageId(id: string): string | null {
   const queryIndex = id.indexOf('?')
@@ -174,13 +191,12 @@ export function responsiveImages(options: ResponsiveImagesOptions = {}): Plugin 
     sharpInput: SharpInput,
     sourceHash: string,
     width: number,
-    format: OutputFormat,
   ): Promise<GeneratedVariant> {
     const sourceName = path.basename(sourcePath, path.extname(sourcePath))
       .replace(/[^a-z0-9_-]+/gi, '-')
       .replace(/^-+|-+$/g, '')
       .toLowerCase()
-    const fileName = `${sourceName}-${sourceHash}-${width}.${format}`
+    const fileName = `${sourceName}-${sourceHash}-${width}.webp`
     const cachePath = path.join(cacheDirectory, fileName)
 
     try {
@@ -199,20 +215,12 @@ export function responsiveImages(options: ResponsiveImagesOptions = {}): Plugin 
 
       image = image.keepIccProfile()
 
-      if (format === 'avif') {
-        image = image.avif({
-          quality: 80,
-          effort: 5,
-          chromaSubsampling: '4:4:4',
-        })
-      } else {
-        image = image.webp({
-          quality: 86,
-          alphaQuality: 100,
-          effort: 5,
-          smartSubsample: true,
-        })
-      }
+      image = image.webp({
+        quality: 84,
+        alphaQuality: 100,
+        effort: 4,
+        smartSubsample: true,
+      })
 
       const buffer = await image.toBuffer()
       await fs.writeFile(cachePath, buffer)
@@ -261,13 +269,29 @@ export function responsiveImages(options: ResponsiveImagesOptions = {}): Plugin 
 
     async load(id) {
       const sourcePath = parseResponsiveImageId(id)
-      if (!sourcePath) return null
+      if (!sourcePath) {
+        // Content modules use their image import as a lookup key. Returning a
+        // stable virtual key here prevents Vite from also copying the very
+        // large camera originals into the production bundle.
+        const normalizedId = id.replace(/\\/g, '/')
+        const root = resolvedConfig.root.replace(/\\/g, '/').replace(/\/$/, '')
+        if (
+          !id.includes('?') &&
+          normalizedId.startsWith(`${root}/src/content/`) &&
+          /\.(?:jpe?g|png)$/i.test(normalizedId)
+        ) {
+          return `export default ${JSON.stringify(normalizedId.slice(root.length))}`
+        }
+
+        return null
+      }
 
       this.addWatchFile(sourcePath)
 
-      const [sharpInput, sourceStats] = await Promise.all([
+      const relativePath = path.relative(resolvedConfig.root, sourcePath).replace(/\\/g, '/')
+      const [sharpInput, sourceHash] = await Promise.all([
         getSharpInput(sourcePath),
-        fs.stat(sourcePath),
+        hashSourceFile(sourcePath, relativePath),
       ])
       const metadata = await sharp(sharpInput, { failOn: 'none' }).metadata()
 
@@ -277,58 +301,40 @@ export function responsiveImages(options: ResponsiveImagesOptions = {}): Plugin 
         throw new Error(`Unable to read image dimensions for ${sourcePath}`)
       }
 
-      const relativePath = path.relative(resolvedConfig.root, sourcePath).replace(/\\/g, '/')
-      const sourceHash = crypto
-        .createHash('sha256')
-        .update(PIPELINE_VERSION)
-        .update(relativePath)
-        .update(String(sourceStats.size))
-        .update(String(sourceStats.mtimeMs))
-        .digest('hex')
-        .slice(0, 12)
       const outputWidths = getOutputWidths(originalWidth, requestedWidths)
 
-      const generatedByFormat = Object.fromEntries(
-        await Promise.all(
-          (['avif', 'webp'] as const).map(async (format) => [
-            format,
-            await Promise.all(
-              outputWidths.map((width) =>
-                generateVariant(sourcePath, sharpInput, sourceHash, width, format),
-              ),
-            ),
-          ]),
-        ),
-      ) as Record<OutputFormat, GeneratedVariant[]>
+      const generatedVariants = await Promise.all(
+        outputWidths.map((width) => generateVariant(sourcePath, sharpInput, sourceHash, width)),
+      )
 
-      const formatModuleCode = (format: OutputFormat) =>
-        generatedByFormat[format]
-          .map((variant) => {
-            if (resolvedConfig.command === 'serve') {
-              return `{ src: ${JSON.stringify(`${routePrefix}${variant.fileName}`)}, width: ${variant.width} }`
-            }
+      const emittedSources = generatedVariants.map((variant) => {
+        if (resolvedConfig.command === 'serve') {
+          return JSON.stringify(`${routePrefix}${variant.fileName}`)
+        }
 
-            const referenceId = this.emitFile({
-              type: 'asset',
-              name: variant.fileName,
-              source: variant.contents,
-            })
-            return `{ src: import.meta.ROLLUP_FILE_URL_${referenceId}, width: ${variant.width} }`
-          })
-          .join(',\n    ')
+        const referenceId = this.emitFile({
+          type: 'asset',
+          name: variant.fileName,
+          source: variant.contents,
+        })
+        return `import.meta.ROLLUP_FILE_URL_${referenceId}`
+      })
+
+      const webpModuleCode = generatedVariants
+        .map(
+          (variant, index) =>
+            `{ src: ${emittedSources[index]}, width: ${variant.width} }`,
+        )
+        .join(',\n    ')
+      const fallbackSource = emittedSources.at(-1)
 
       return `
-import fallbackUrl from ${JSON.stringify(`${sourcePath}?url`)}
-
 export default {
-  src: fallbackUrl,
+  src: ${fallbackSource},
   width: ${originalWidth},
   height: ${originalHeight},
-  avif: [
-    ${formatModuleCode('avif')}
-  ],
   webp: [
-    ${formatModuleCode('webp')}
+    ${webpModuleCode}
   ],
 }
 `

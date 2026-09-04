@@ -37,11 +37,6 @@ export default function ResponsiveImage({
   return (
     <picture>
       <source
-        type="image/avif"
-        srcSet={createSrcSet(responsiveImage.avif)}
-        sizes={sizes}
-      />
-      <source
         type="image/webp"
         srcSet={createSrcSet(responsiveImage.webp)}
         sizes={sizes}

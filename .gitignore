@@ -13,6 +13,9 @@ coverage/
 
 .DS_Store
 Thumbs.db
+~$*.docx
+
+.share/
 
 .idea/
 .vscode/
