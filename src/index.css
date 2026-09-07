@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 @import 'tailwindcss';
 
 @theme inline {
-  --font-sans: 'Century Gothic', 'CenturyGothic', 'Century Gothic Std', 'Jost', 'Gill Sans', 'Gill Sans MT', 'AppleGothic', Futura, 'Trebuchet MS', sans-serif;
+  --font-sans: 'Century Gothic', 'CenturyGothic', 'Century Gothic Std', 'Questrial', sans-serif;
   --color-background: #ffffff;
   --color-foreground: #212529;
   --color-card: #f8f9fa;
@@ -25,11 +25,16 @@ html {
 }
 
 body {
-  font-family: 'Century Gothic', 'CenturyGothic', 'Century Gothic Std', 'Jost', 'Gill Sans', 'Gill Sans MT', 'AppleGothic', Futura, 'Trebuchet MS', sans-serif;
+  font-family: 'Century Gothic', 'CenturyGothic', 'Century Gothic Std', 'Questrial', sans-serif;
   background-color: #ffffff;
   color: #212529;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body,
+body * {
+  text-transform: lowercase !important;
 }
 
 * {
@@ -129,9 +134,8 @@ body {
   transform: translateY(0);
 }
 
-/* Keep the presence map at a readable scale as the viewport narrows. The
-   viewport crops its sides down to a 1:1 visible area; below that point the
-   complete map canvas scales with the screen again. */
+/* The map, its projected labels, and its interaction layer share one fluid
+   canvas so all map content remains inside the viewport at every width. */
 .story-map-viewport {
   width: 100vw;
   margin-left: calc(50% - 50vw);
@@ -139,14 +143,118 @@ body {
 }
 
 .story-map-canvas {
-  left: 50%;
-  width: max(100%, 1000px);
-  transform: translateX(-50%);
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 2 / 1;
 }
 
-@media (max-width: 500px) {
-  .story-map-canvas {
-    width: 200vw;
+.story-map-tooltip {
+  width: min(320px, calc(100vw - 2rem));
+  height: 160px;
+  max-width: calc(100vw - 2rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.story-map-tooltip-header {
+  display: none;
+}
+
+.story-map-label::before {
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+}
+
+.story-map-label-name,
+.story-map-label-marker {
+  display: block;
+  transition: font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.story-map-label-name {
+  font-size: clamp(0.58rem, 2.5vw, 1.5625rem);
+  letter-spacing: 0.04em;
+}
+
+.story-map-label-marker {
+  font-size: clamp(0.8rem, 3.2vw, 2rem);
+  font-weight: 300;
+}
+
+.story-map-label.is-active .story-map-label-name {
+  font-size: clamp(0.68rem, 3vw, 1.875rem);
+}
+
+.story-map-label.is-active .story-map-label-marker {
+  font-size: clamp(0.92rem, 3.7vw, 2.3125rem);
+}
+
+@media (max-width: 767px) {
+  .story-map-tooltip {
+    left: max(0.75rem, env(safe-area-inset-left)) !important;
+    right: max(0.75rem, env(safe-area-inset-right));
+    top: auto !important;
+    bottom: 0.75rem;
+    width: auto;
+    max-width: none;
+    height: auto;
+    max-height: calc(100% - 1.5rem);
+    min-height: 0;
+    transform: none !important;
+    padding: 0.75rem !important;
+  }
+
+  .story-map-tooltip address {
+    margin: 0 !important;
+  }
+
+  .story-map-tooltip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .story-map-tooltip-title {
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .story-map-label.is-active {
+    z-index: 3 !important;
+    color: #b4906e !important;
+  }
+
+  .story-map-tooltip-close {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 1.75rem;
+    margin: -0.45rem -0.45rem -0.15rem 0;
+    border: 0;
+    background: transparent;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  /* Separate the tightly grouped east-coast offices while retaining their
+     geographic order on small screens. */
+  .story-map-label[data-office='nanjing'] {
+    margin-top: -0.55rem;
+  }
+
+  .story-map-label[data-office='suzhou'] {
+    margin-top: 0.2rem;
+  }
+
+  .story-map-label[data-office='shanghai'] {
+    margin-top: 0.8rem;
   }
 }
 

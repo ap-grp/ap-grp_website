@@ -43,8 +43,8 @@ function getMapPosition(lon: number, lat: number, dx: number, dy: number) {
   }
 }
 
-// Labels are fixed-size HTML overlays positioned from the same projection as the SVG.
-// This keeps their screen size stable while the map canvas crops or scales beneath them.
+// Labels are HTML overlays positioned from the same projection as the SVG. Their
+// typography scales in CSS so the markers stay legible without crowding narrow screens.
 // anchor='end'  → name + "+"  rendered right-to-left (name left of pin, right-justified)
 // anchor='start' → "+" + name  rendered left-to-right (name right of pin)
 function WorldMap({ isZh }: { isZh: boolean }) {
@@ -111,6 +111,7 @@ function WorldMap({ isZh }: { isZh: boolean }) {
         return (
           <div
             key={`${office.slug}-tooltip`}
+            className="story-map-tooltip"
             role="tooltip"
             aria-hidden={!isActive}
             onMouseEnter={() => showTooltip(office.slug)}
@@ -119,8 +120,6 @@ function WorldMap({ isZh }: { isZh: boolean }) {
               position: 'absolute',
               left: `calc(${position.left}% ${office.anchor === 'end' ? '+' : '-'} 0.8rem)`,
               top: `calc(${position.top}% - 2rem)`,
-              width: 'min(320px, calc(100vw - 2rem))',
-              height: '160px',
               transform: anchoredTransform,
               zIndex: isActive ? 20 : 2,
               visibility: isDisplayed ? 'visible' : 'hidden',
@@ -139,6 +138,17 @@ function WorldMap({ isZh }: { isZh: boolean }) {
               transition: 'background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
             }}
           >
+            <div className="story-map-tooltip-header">
+              <strong className="story-map-tooltip-title">{office.name[language]}</strong>
+              <button
+                className="story-map-tooltip-close"
+                type="button"
+                aria-label={isZh ? '关闭办公室详情' : 'close office details'}
+                onClick={hideTooltip}
+              >
+                ×
+              </button>
+            </div>
             <address
               style={{
                 margin: '3.5rem 0 0',
@@ -176,6 +186,8 @@ function WorldMap({ isZh }: { isZh: boolean }) {
         return (
           <div
             key={`${office.slug}-tag`}
+            className={`story-map-label${isActive ? ' is-active' : ''}`}
+            data-office={office.slug}
             role="button"
             tabIndex={0}
             aria-label={`${label}: ${officeDetails}`}
@@ -184,7 +196,7 @@ function WorldMap({ isZh }: { isZh: boolean }) {
             onMouseLeave={hideTooltip}
             onFocus={() => showTooltip(office.slug)}
             onBlur={hideTooltip}
-            onClick={() => isActive ? hideTooltip() : showTooltip(office.slug)}
+            onClick={() => showTooltip(office.slug)}
             onKeyDown={(event) => {
               if (event.key === 'Escape') hideTooltip()
             }}
@@ -208,13 +220,13 @@ function WorldMap({ isZh }: { isZh: boolean }) {
           >
             {office.anchor === 'end' ? (
               <>
-                <span style={{ fontSize: isActive ? '30px' : '25px', letterSpacing: '0.04em', transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>{label}</span>
-                <span style={{ fontSize: isActive ? '37px' : '32px', fontWeight: 300, transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>+</span>
+                <span className="story-map-label-name">{label}</span>
+                <span className="story-map-label-marker">+</span>
               </>
             ) : (
               <>
-                <span style={{ fontSize: isActive ? '37px' : '32px', fontWeight: 300, transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>+</span>
-                <span style={{ fontSize: isActive ? '30px' : '25px', letterSpacing: '0.04em', transition: 'font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1)' }}>{label}</span>
+                <span className="story-map-label-marker">+</span>
+                <span className="story-map-label-name">{label}</span>
               </>
             )}
           </div>
