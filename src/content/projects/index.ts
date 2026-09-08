@@ -24,6 +24,7 @@ import stEngineeringAerospaceHangar from './STE_STEngineeringAerospaceHangar_Sin
 import terusanEdgeDormitory from './TED_TerusanEdgeDormitory_Singapore'
 import yangonNewCity from './YNC_YangonNewCity_Myanmar'
 import lorongHalusBusDepot from './LHB_LorongHalusBusDepot_Singapore'
+import yangonSmartMall from './YSM_YangonSmartMall_Myanmar'
 
 import type { Project } from '../types'
 
@@ -56,6 +57,7 @@ export const projects: Project[] = [
   terusanEdgeDormitory,
   yangonNewCity,
   lorongHalusBusDepot,
+  yangonSmartMall,
 ]
 
 // The projects shown on the Home page, in display order.
