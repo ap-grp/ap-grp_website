@@ -289,7 +289,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <form className="enquiry-form" onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     {[
                       { field: 'name' as const, label: zh ? '姓名' : 'full name', type: 'text', required: true },
                       { field: 'email' as const, label: zh ? '电子邮件' : 'email address', type: 'email', required: true },

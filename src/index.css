@@ -37,6 +37,12 @@ body * {
   text-transform: lowercase !important;
 }
 
+.enquiry-form input,
+.enquiry-form textarea,
+.enquiry-form select {
+  text-transform: none !important;
+}
+
 * {
   box-sizing: border-box;
 }

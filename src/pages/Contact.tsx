@@ -243,7 +243,7 @@ export default function Contact({ navigate: _navigate }: Props) {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <form className="enquiry-form" onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                     {[
                       { field: 'name' as const, label: zh ? '姓名' : 'name', required: true },
