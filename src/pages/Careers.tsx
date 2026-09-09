@@ -45,6 +45,7 @@ export default function Careers({ navigate: _navigate }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const validate = () => {
     const e: typeof errors = {}
@@ -102,6 +103,12 @@ export default function Careers({ navigate: _navigate }: Props) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     setForm((prev) => ({ ...prev, file }))
+    if (errors.file) setErrors((prev) => ({ ...prev, file: undefined }))
+  }
+
+  const handleRemoveFile = () => {
+    setForm((prev) => ({ ...prev, file: null }))
+    if (fileInputRef.current) fileInputRef.current.value = ''
     if (errors.file) setErrors((prev) => ({ ...prev, file: undefined }))
   }
 
@@ -348,24 +355,60 @@ export default function Careers({ navigate: _navigate }: Props) {
                       <label style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.1em', color: '#9AA3AC', marginBottom: '0.5rem' }}>
                         {zh ? '申请材料（1个ZIP文件 — 最大10MB）' : 'application documents (1 zip file — max 10mb)'} <span style={{ color: '#b4906e' }}>*</span>
                       </label>
-                      <label
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', border: `1px solid ${errors.file ? '#c0392b' : '#dee2e6'}`, padding: '0.85rem 1rem', cursor: 'pointer', transition: 'border-color 0.2s ease' }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#212529')}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#dee2e6')}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AA3AC" strokeWidth="1.5">
-                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
-                        </svg>
-                        <span style={{ fontSize: '0.78rem', color: form.file ? '#212529' : '#9AA3AC', letterSpacing: '0.03em' }}>
-                          {form.file ? form.file.name : (zh ? '点击上传文件' : 'click to upload file')}
-                        </span>
-                        <input
-                          type="file"
-                          accept=".zip,application/zip,application/x-zip-compressed"
-                          style={{ display: 'none' }}
-                          onChange={handleFileChange}
-                        />
-                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <label
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', border: `1px solid ${errors.file ? '#c0392b' : '#dee2e6'}`, padding: `0.85rem ${form.file ? '4rem' : '1rem'} 0.85rem 1rem`, cursor: 'pointer', transition: 'border-color 0.2s ease' }}
+                          onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#212529')}
+                          onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = errors.file ? '#c0392b' : '#dee2e6')}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9AA3AC" strokeWidth="1.5" style={{ flexShrink: 0 }}>
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                          </svg>
+                          <span className={form.file ? 'uploaded-file-name' : undefined} style={{ minWidth: 0, flex: 1, fontSize: '0.78rem', color: form.file ? '#212529' : '#9AA3AC', letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {form.file ? form.file.name : (zh ? '点击上传文件' : 'click to upload file')}
+                          </span>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".zip,application/zip,application/x-zip-compressed"
+                            style={{ display: 'none' }}
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        {form.file && (
+                          <button
+                            type="button"
+                            aria-label={zh ? '移除上传文件' : 'remove uploaded file'}
+                            title={zh ? '移除上传文件' : 'remove uploaded file'}
+                            onClick={handleRemoveFile}
+                            style={{
+                              position: 'absolute',
+                              zIndex: 1,
+                              top: 0,
+                              right: 0,
+                              bottom: 0,
+                              width: '3rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: 'none',
+                              borderLeft: '1px solid #dee2e6',
+                              backgroundColor: '#ffffff',
+                              color: '#9AA3AC',
+                              cursor: 'pointer',
+                              fontFamily: 'inherit',
+                              fontSize: '1.2rem',
+                              fontWeight: 300,
+                              lineHeight: 1,
+                              transition: 'color 0.2s ease, background-color 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = '#212529'; e.currentTarget.style.backgroundColor = '#f8f9fa' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = '#9AA3AC'; e.currentTarget.style.backgroundColor = '#ffffff' }}
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
                       {errors.file && <p style={{ fontSize: '0.65rem', color: '#c0392b', marginTop: '0.35rem', letterSpacing: '0.04em' }}>{errors.file}</p>}
                     </div>
 

@@ -43,6 +43,10 @@ body * {
   text-transform: none !important;
 }
 
+.uploaded-file-name {
+  text-transform: none !important;
+}
+
 * {
   box-sizing: border-box;
 }
