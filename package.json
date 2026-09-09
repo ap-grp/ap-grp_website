@@ -30,6 +30,7 @@
   "overrides": {
     "d3-color": "3.1.0"
   },
+  "packageManager": "pnpm@11.17.0",
   "knip": {
     "ignoreFiles": [
       "src/shims/prop-types.ts"
