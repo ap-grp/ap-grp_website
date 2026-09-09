@@ -1,4 +1,4 @@
-export const FORM_SUBMIT_RECIPIENT = 'tskwilliam@gmail.com'
+export const FORM_SUBMIT_RECIPIENT = 'tskwilli4m@gmail.com'
 export const FORM_SUBMIT_MAX_FILE_SIZE = 10 * 1024 * 1024
 
 const FORM_SUBMIT_ENDPOINT = `https://formsubmit.co/ajax/${FORM_SUBMIT_RECIPIENT}`
