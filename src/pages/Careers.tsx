@@ -3,7 +3,7 @@ import type { PageState } from '../App'
 import ResponsiveImage from '../components/ResponsiveImage'
 import { careerFaqs, careerListings, careersImages } from '../content/careers'
 import { useLang } from '../context/lang'
-import { FORM_SUBMIT_MAX_FILE_SIZE, submitToFormSubmit } from '../lib/formSubmit'
+import { FORM_SUBMIT_FORM_ENDPOINT, FORM_SUBMIT_MAX_FILE_SIZE } from '../lib/formSubmit'
 
 function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -41,9 +41,6 @@ export default function Careers({ navigate: _navigate }: Props) {
   const zh = lang === 'zh'
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [form, setForm] = useState<FormState>({ name: '', email: '', phone: '', position: '', message: '', file: null })
-  const [submitted, setSubmitted] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -59,38 +56,14 @@ export default function Careers({ navigate: _navigate }: Props) {
     return e
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
-
-    setSubmitting(true)
-    setSubmitError('')
-    setErrors({})
-
-    const payload = new FormData()
-    payload.append('form_type', 'job application')
-    payload.append('name', form.name)
-    payload.append('email', form.email)
-    payload.append('phone', form.phone)
-    payload.append('position', form.position)
-    payload.append('message', form.message)
-    if (form.file) payload.append('attachment', form.file, form.file.name)
-    payload.append('_subject', `Job application — ${form.position} — ${form.name}`)
-    payload.append('_template', 'table')
-    payload.append('_replyto', form.email)
-    payload.append('_honey', '')
-
-    try {
-      await submitToFormSubmit(payload)
-      setSubmitted(true)
-    } catch {
-      setSubmitError(zh
-        ? '目前无法提交您的申请。请稍后重试或直接发送电子邮件至 info@ap-grp.com。'
-        : 'we could not submit your application. please try again or email info@ap-grp.com directly.')
-    } finally {
-      setSubmitting(false)
+    if (Object.keys(errs).length > 0) {
+      e.preventDefault()
+      setErrors(errs)
+      return
     }
+    setErrors({})
   }
 
   const handleChange = (field: keyof Omit<FormState, 'file'>) => (
@@ -279,24 +252,20 @@ export default function Careers({ navigate: _navigate }: Props) {
 
             <FadeSection delay={0.15}>
               <div>
-                {submitted ? (
-                  <div style={{ padding: '3rem', border: '1px solid #dee2e6', textAlign: 'center' }}>
-                    <div style={{ width: '40px', height: '40px', border: '1px solid #b4906e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b4906e" strokeWidth="1.5">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 300, marginBottom: '0.75rem', letterSpacing: '0.02em' }}>
-                      {zh ? '申请已提交' : 'application submitted'}
-                    </h3>
-                    <p style={{ fontSize: '0.78rem', color: '#9AA3AC', letterSpacing: '0.02em', lineHeight: 1.7 }}>
-                      {zh
-                        ? '感谢您对a+pgrp的关注。您的申请已提交，我们将在四周内与入围申请者联系。'
-                        : 'thank you for your interest in a+pgrp. your application has been submitted and shortlisted applicants will be contacted within four weeks.'}
-                    </p>
-                  </div>
-                ) : (
-                  <form className="enquiry-form" onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <form
+                    className="enquiry-form"
+                    action={FORM_SUBMIT_FORM_ENDPOINT}
+                    method="POST"
+                    encType="multipart/form-data"
+                    onSubmit={handleSubmit}
+                    noValidate
+                    style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+                  >
+                    <input type="hidden" name="form_type" value="career application" />
+                    <input type="hidden" name="_subject" value={`Job application — ${form.position} — ${form.name}`} />
+                    <input type="hidden" name="_template" value="table" />
+                    <input type="hidden" name="_replyto" value={form.email} />
+                    <input type="text" name="_honey" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} />
                     {[
                       { field: 'name' as const, label: zh ? '姓名' : 'full name', type: 'text', required: true },
                       { field: 'email' as const, label: zh ? '电子邮件' : 'email address', type: 'email', required: true },
@@ -307,6 +276,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                           {label}{required && <span style={{ color: '#b4906e' }}> *</span>}
                         </label>
                         <input
+                          name={field}
                           type={type}
                           value={form[field] as string}
                           onChange={handleChange(field)}
@@ -323,6 +293,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                         {zh ? '申请职位' : 'position applied for'} <span style={{ color: '#b4906e' }}>*</span>
                       </label>
                       <select
+                        name="position"
                         value={form.position}
                         onChange={handleChange('position')}
                         style={{ ...inputStyle(!!errors.position), appearance: 'none', cursor: 'pointer' }}
@@ -341,6 +312,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                         {zh ? '简短介绍' : 'short message'} <span style={{ color: '#b4906e' }}>*</span>
                       </label>
                       <textarea
+                        name="message"
                         value={form.message}
                         onChange={handleChange('message')}
                         rows={5}
@@ -369,6 +341,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                           </span>
                           <input
                             ref={fileInputRef}
+                            name="attachment"
                             type="file"
                             accept=".zip,application/zip,application/x-zip-compressed"
                             style={{ display: 'none' }}
@@ -414,15 +387,13 @@ export default function Careers({ navigate: _navigate }: Props) {
 
                     <button
                       type="submit"
-                      disabled={submitting}
                       style={{
                         marginTop: '0.5rem',
                         padding: '1rem 2rem',
                         backgroundColor: '#212529',
                         color: '#ffffff',
                         border: 'none',
-                        cursor: submitting ? 'wait' : 'pointer',
-                        opacity: submitting ? 0.65 : 1,
+                        cursor: 'pointer',
                         fontSize: '0.7rem',
                         letterSpacing: '0.12em',
                         fontFamily: 'inherit',
@@ -431,15 +402,9 @@ export default function Careers({ navigate: _navigate }: Props) {
                       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#b4906e')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#212529')}
                     >
-                      {submitting ? (zh ? '正在提交…' : 'submitting...') : (zh ? '提交申请' : 'submit application')}
+                      {zh ? '提交申请' : 'submit application'}
                     </button>
-                    {submitError && (
-                      <p role="alert" style={{ fontSize: '0.7rem', color: '#c0392b', lineHeight: 1.6, letterSpacing: '0.02em' }}>
-                        {submitError}
-                      </p>
-                    )}
                   </form>
-                )}
               </div>
             </FadeSection>
           </div>
