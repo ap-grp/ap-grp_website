@@ -28,7 +28,7 @@ const staleThemePath = path.join(staging, "word", "theme", "theme1.xml");
 if (fs.existsSync(staleThemePath)) fs.unlinkSync(staleThemePath);
 
 if (!fs.existsSync(logoSource)) {
-  await sharp(path.join(root, "src", "assets", "apgrp_logo.svg"))
+  await sharp(path.join(root, "src", "assets", "ap-grp_logo.svg"))
     .resize({ width: 700 })
     .png()
     .toFile(logoSource);

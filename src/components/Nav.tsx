@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import type { PageState } from "../App";
 import { useLang } from "../context/lang";
-import logoUrl from "../assets/apgrp_logo.svg";
+import logoUrl from "../assets/ap-grp_logo.svg";
 
 interface NavProps {
   currentPage: string;

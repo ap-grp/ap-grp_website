@@ -664,7 +664,7 @@ Check every changed link in the browser. A correct label can still point to the 
 
 ## Logo, colours, and page design
 
-The logo is `src/assets/apgrp_logo.svg`. Global colours and fonts are controlled by `src/index.css`. Layout and behaviour live in `src/pages`, `src/components`, and `src/App.tsx`.
+The logo is `src/assets/ap-grp_logo.svg`. Global colours and fonts are controlled by `src/index.css`. Layout and behaviour live in `src/pages`, `src/components`, and `src/App.tsx`.
 
 These are design or developer areas. A routine editor should not change them. If a design update is approved, ask an AI agent or developer to make a focused change and to preserve unrelated page behaviour.
 
