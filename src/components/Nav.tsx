@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import type { PageState } from '../App'
 import { useLang } from '../context/lang'
 import logoUrl from '../assets/apgrp_logo.svg'
@@ -14,6 +14,11 @@ export default function Nav({ currentPage, navigate }: NavProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileSearch, setMobileSearch] = useState('')
+  const [desktopFits, setDesktopFits] = useState(true)
+  const navRef = useRef<HTMLElement>(null)
+  const logoRef = useRef<HTMLButtonElement>(null)
+  const desktopLinksRef = useRef<HTMLDivElement>(null)
+  const desktopUtilitiesRef = useRef<HTMLDivElement>(null)
 
   const links: { label: { en: string; zh: string }; page: PageState['id'] }[] = [
     { label: { en: 'our story', zh: '关于我们' }, page: 'story' },
@@ -37,18 +42,56 @@ export default function Nav({ currentPage, navigate }: NavProps) {
   }, [currentPage])
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    document.body.style.overflow = !desktopFits && menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
-  }, [menuOpen])
+  }, [desktopFits, menuOpen])
 
   const isHome = currentPage === 'home'
   const isTransparent = isHome && !scrolled && !menuOpen
-  const isExpandedHome = isHome && !scrolled && !menuOpen
+  const isExpandedHome = isHome && !scrolled
   const navHeight = isExpandedHome ? 'clamp(88px, 9vw, 112px)' : '64px'
+
+  useLayoutEffect(() => {
+    const updateNavigationFit = () => {
+      const nav = navRef.current
+      const logo = logoRef.current
+      const desktopLinks = desktopLinksRef.current
+      const desktopUtilities = desktopUtilitiesRef.current
+      if (!nav || !logo || !desktopLinks || !desktopUtilities) return
+
+      const navStyle = window.getComputedStyle(nav)
+      const leftSideWidth = parseFloat(navStyle.paddingLeft) + logo.offsetWidth
+      const rightSideWidth = parseFloat(navStyle.paddingRight) + desktopUtilities.scrollWidth
+      const sideClearance = Math.max(leftSideWidth, rightSideWidth) + 32
+      const requiredWidth = desktopLinks.scrollWidth + sideClearance * 2
+
+      setDesktopFits(nav.clientWidth >= requiredWidth)
+    }
+
+    const observer = new ResizeObserver(updateNavigationFit)
+    if (navRef.current) observer.observe(navRef.current)
+    if (logoRef.current) observer.observe(logoRef.current)
+    if (desktopLinksRef.current) observer.observe(desktopLinksRef.current)
+    if (desktopUtilitiesRef.current) observer.observe(desktopUtilitiesRef.current)
+
+    updateNavigationFit()
+    document.fonts?.ready.then(updateNavigationFit)
+
+    return () => observer.disconnect()
+  }, [lang, isExpandedHome])
+
+  useEffect(() => {
+    if (desktopFits) {
+      setMenuOpen(false)
+    } else {
+      setSearchOpen(false)
+    }
+  }, [desktopFits])
 
   return (
     <>
       <nav
+        ref={navRef}
         style={{
           position: 'fixed',
           top: 0,
@@ -58,6 +101,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
           height: navHeight,
           display: 'flex',
           alignItems: 'center',
+          overflow: 'hidden',
           padding: '0 clamp(2rem, 5vw, 5rem)',
           backgroundColor: isTransparent ? 'transparent' : 'rgba(255,255,255,0.96)',
           borderBottom: isTransparent ? 'none' : '1px solid #dee2e6',
@@ -67,8 +111,9 @@ export default function Nav({ currentPage, navigate }: NavProps) {
       >
         {/* Logo */}
         <button
+          ref={logoRef}
           onClick={() => navigate({ id: 'home' })}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', flexShrink: 0 }}
           aria-label="a+pgrp home"
         >
           <img
@@ -84,13 +129,41 @@ export default function Nav({ currentPage, navigate }: NavProps) {
           />
         </button>
 
-        {/* Desktop nav links */}
-        <div className="hidden md:flex" style={{ gap: '2rem', marginLeft: 'auto', marginRight: '2rem', alignItems: 'center' }}>
+        {/* Centered desktop navigation */}
+        <div
+          ref={desktopLinksRef}
+          aria-hidden={!desktopFits}
+          style={{
+            position: 'absolute', left: '50%',
+            display: 'flex', gap: 'clamp(1rem, 1.6vw, 2rem)', alignItems: 'center', whiteSpace: 'nowrap',
+            opacity: desktopFits ? 1 : 0,
+            visibility: desktopFits ? 'visible' : 'hidden',
+            pointerEvents: desktopFits ? 'auto' : 'none',
+            transform: desktopFits ? 'translate(-50%, 0)' : 'translate(-50%, 12px)',
+            transition: 'opacity 0.25s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.25s',
+          }}
+        >
+          <button
+            onClick={() => navigate({ id: 'home' })}
+            aria-label={lang === 'en' ? 'home' : '首页'}
+            title={lang === 'en' ? 'home' : '首页'}
+            tabIndex={desktopFits ? 0 : -1}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', display: 'flex', alignItems: 'center',
+              color: currentPage === 'home' && !isTransparent ? '#b4906e' : isTransparent ? 'rgba(255,255,255,0.85)' : '#212529',
+              transition: 'color 0.4s ease, opacity 0.2s ease',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 10.5 12 4l8 6.5V20H4Z" />
+            </svg>
+          </button>
           {links.map((l) => (
             <button
               key={l.page}
               onClick={() => navigate({ id: l.page } as PageState)}
               className={`nav-link ${currentPage === l.page ? 'active' : ''}`}
+              tabIndex={desktopFits ? 0 : -1}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0',
                 color: isTransparent ? 'rgba(255,255,255,0.85)' : '#212529',
@@ -103,11 +176,23 @@ export default function Nav({ currentPage, navigate }: NavProps) {
           ))}
         </div>
 
-        {/* Desktop right icons */}
-        <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.2rem' }}>
+        {/* Desktop utilities */}
+        <div
+          ref={desktopUtilitiesRef}
+          aria-hidden={!desktopFits}
+          style={{
+            position: 'absolute', right: 'clamp(2rem, 5vw, 5rem)', display: 'flex', alignItems: 'center', gap: '1.2rem',
+            opacity: desktopFits ? 1 : 0,
+            visibility: desktopFits ? 'visible' : 'hidden',
+            pointerEvents: desktopFits ? 'auto' : 'none',
+            transform: desktopFits ? 'translateX(0)' : 'translateX(12px)',
+            transition: 'opacity 0.25s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.25s',
+          }}
+        >
           <button
             onClick={() => setSearchOpen(!searchOpen)}
             aria-label="search"
+            tabIndex={desktopFits ? 0 : -1}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               color: isTransparent ? '#ffffff' : '#212529',
@@ -121,6 +206,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
           <button
             onClick={toggle}
             aria-label="toggle language"
+            tabIndex={desktopFits ? 0 : -1}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontSize: '0.7rem', letterSpacing: '0.04em',
@@ -136,12 +222,19 @@ export default function Nav({ currentPage, navigate }: NavProps) {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="menu"
-          className="md:hidden"
+          aria-expanded={!desktopFits && menuOpen}
+          aria-hidden={desktopFits}
+          tabIndex={desktopFits ? -1 : 0}
           style={{
-            marginLeft: 'auto',
+            position: 'absolute', right: 'clamp(2rem, 5vw, 5rem)',
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             display: 'flex', flexDirection: 'column', gap: '5px',
             color: isTransparent && !menuOpen ? '#ffffff' : '#212529',
+            opacity: desktopFits ? 0 : 1,
+            visibility: desktopFits ? 'hidden' : 'visible',
+            pointerEvents: desktopFits ? 'none' : 'auto',
+            transform: desktopFits ? 'translateX(12px)' : 'translateX(0)',
+            transition: 'opacity 0.25s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease, visibility 0s linear 0.25s',
           }}
         >
           <span style={{ display: 'block', width: '20px', height: '1px', backgroundColor: 'currentColor', transition: 'transform 0.3s ease, opacity 0.3s ease', transform: menuOpen ? 'translateY(6px) rotate(45deg)' : 'none' }} />
@@ -151,8 +244,8 @@ export default function Nav({ currentPage, navigate }: NavProps) {
       </nav>
 
       {/* Desktop search bar */}
-      {searchOpen && (
-        <div className="hidden md:block" style={{ position: 'fixed', top: navHeight, left: 0, right: 0, zIndex: 99, backgroundColor: '#ffffff', borderBottom: '1px solid #dee2e6', padding: '1rem clamp(2rem,5vw,6rem)', transition: 'top 0.45s cubic-bezier(0.4, 0, 0.2, 1)' }}>
+      {searchOpen && desktopFits && (
+        <div style={{ position: 'fixed', top: navHeight, left: 0, right: 0, zIndex: 99, backgroundColor: '#ffffff', borderBottom: '1px solid #dee2e6', padding: '1rem clamp(2rem,5vw,6rem)', transition: 'top 0.45s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '600px', margin: '0 auto' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9AA3AC" strokeWidth="1.5">
               <circle cx="11" cy="11" r="7" /><line x1="16.5" y1="16.5" x2="22" y2="22" />
@@ -171,30 +264,30 @@ export default function Nav({ currentPage, navigate }: NavProps) {
 
       {/* Backdrop */}
       <div
-        className="md:hidden"
         onClick={() => setMenuOpen(false)}
         style={{
           position: 'fixed', inset: 0, zIndex: 97,
           backgroundColor: 'rgba(0,0,0,0.35)',
-          opacity: menuOpen ? 1 : 0,
-          pointerEvents: menuOpen ? 'auto' : 'none',
+          opacity: !desktopFits && menuOpen ? 1 : 0,
+          pointerEvents: !desktopFits && menuOpen ? 'auto' : 'none',
           transition: 'opacity 0.4s ease',
         }}
       />
 
       {/* Side panel drawer */}
       <div
-        className="md:hidden"
+        aria-hidden={desktopFits || !menuOpen}
+        inert={desktopFits || !menuOpen}
         style={{
           position: 'fixed', top: 0, right: 0, bottom: 0,
           width: 'min(80vw, 320px)',
           zIndex: 98,
           backgroundColor: '#ffffff',
-          transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
+          transform: !desktopFits && menuOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
           overflowY: 'auto',
           display: 'flex', flexDirection: 'column',
-          boxShadow: menuOpen ? '-8px 0 32px rgba(0,0,0,0.12)' : 'none',
+          boxShadow: !desktopFits && menuOpen ? '-8px 0 32px rgba(0,0,0,0.12)' : 'none',
         }}
       >
         {/* Panel header */}

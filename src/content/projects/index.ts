@@ -26,7 +26,7 @@ import yangonNewCity from './YNC_YangonNewCity_Myanmar'
 import lorongHalusBusDepot from './LHB_LorongHalusBusDepot_Singapore'
 import yangonSmartMall from './YSM_YangonSmartMall_Myanmar'
 
-import type { Project } from '../types'
+import type { Project, ProjectTag } from '../types'
 
 export type { Project, ProjectStatus, ProjectTag } from '../types'
 
@@ -59,6 +59,54 @@ export const projects: Project[] = [
   lorongHalusBusDepot,
   yangonSmartMall,
 ]
+
+const RELATED_TYPE_AFFINITIES: Partial<Record<ProjectTag, ProjectTag[]>> = {
+  residential: ['retail & mixed-use', 'masterplanning', 'landscape'],
+  'retail & mixed-use': ['residential', 'office', 'masterplanning'],
+  office: ['retail & mixed-use', 'industrial'],
+  industrial: ['office', 'transport hubs'],
+  hospitality: ['landscape', 'masterplanning'],
+  institutional: ['masterplanning', 'landscape'],
+  'transport hubs': ['industrial', 'masterplanning'],
+  masterplanning: ['landscape', 'residential', 'retail & mixed-use', 'hospitality', 'institutional'],
+  landscape: ['masterplanning', 'hospitality', 'residential', 'institutional'],
+}
+
+const projectCountry = (project: Project) => {
+  const locationParts = project.location.en.toLowerCase().split(',')
+  return locationParts.at(-1)?.trim() ?? ''
+}
+
+/**
+ * Returns explicit related projects first, then fills any remaining slots with
+ * projects ranked by shared type, country, and complementary project types.
+ */
+export const getRelatedProjects = (project: Project, limit = 2): Project[] => {
+  const country = projectCountry(project)
+  const complementaryTypes = new Set(
+    project.type.flatMap((type) => RELATED_TYPE_AFFINITIES[type] ?? []),
+  )
+
+  return projects
+    .filter((candidate) => candidate.slug !== project.slug)
+    .map((candidate, order) => {
+      const explicitIndex = project.related.indexOf(candidate.slug)
+      const sharedTypes = candidate.type.filter((type) => project.type.includes(type)).length
+      const hasComplementaryType = candidate.type.some((type) => complementaryTypes.has(type))
+      const sameCountry = country !== '' && projectCountry(candidate) === country
+
+      const score =
+        (explicitIndex >= 0 ? 1_000 - explicitIndex : 0) +
+        sharedTypes * 100 +
+        (sameCountry ? 25 : 0) +
+        (hasComplementaryType ? 10 : 0)
+
+      return { candidate, score, order }
+    })
+    .sort((a, b) => b.score - a.score || a.order - b.order)
+    .slice(0, limit)
+    .map(({ candidate }) => candidate)
+}
 
 // The projects shown on the Home page, in display order.
 // Keep this list separate from `projects` so the Home page selection can be

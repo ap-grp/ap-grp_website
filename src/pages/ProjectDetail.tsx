@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { PageState } from '../App'
 import ResponsiveImage from '../components/ResponsiveImage'
-import { projects } from '../content/projects'
+import { getRelatedProjects, projects } from '../content/projects'
 import { formatProjectStatus, formatProjectTypes } from '../content/types'
 import { useLang } from '../context/lang'
 
@@ -363,7 +363,7 @@ export default function ProjectDetail({ slug, navigate }: Props) {
   const idx = projects.findIndex((p) => p.slug === slug)
   const prev = projects[(idx - 1 + projects.length) % projects.length]
   const next = projects[(idx + 1) % projects.length]
-  const related = projects.filter((p) => project.related.includes(p.slug)).slice(0, 2)
+  const related = getRelatedProjects(project)
   const hasDescription = Boolean(project.description[lang].trim())
   const projectTypes = formatProjectTypes(project.type, lang)
   const projectStatus = formatProjectStatus(project.status, lang)
