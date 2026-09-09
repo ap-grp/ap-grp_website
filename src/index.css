@@ -97,26 +97,16 @@ body * {
   width: 100%;
   height: 100%;
   opacity: 0;
-  filter: blur(5px);
-  transform: scale(1.018);
-  transition:
-    opacity 1.25s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 1.4s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 1.8s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, filter, transform;
+  transition: opacity 1.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .soft-image-reveal.is-loaded {
   opacity: 1;
-  filter: blur(0);
-  transform: scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .soft-image-reveal {
     opacity: 1;
-    filter: none;
-    transform: none;
     transition: none;
   }
 }

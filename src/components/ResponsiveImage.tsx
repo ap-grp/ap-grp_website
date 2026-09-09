@@ -24,6 +24,7 @@ export default function ResponsiveImage({
 }: ResponsiveImageProps) {
   const [loadedSource, setLoadedSource] = useState<string | null>(null);
   const softlyReveal = loading === "eager";
+  const fillsContainer = imageProps.style?.position === "absolute";
 
   const revealCachedImage = useCallback(
     (image: HTMLImageElement | null) => {
@@ -45,6 +46,9 @@ export default function ResponsiveImage({
         softlyReveal
           ? `soft-image-reveal${loadedSource === src.src ? " is-loaded" : ""}`
           : undefined
+      }
+      style={
+        fillsContainer ? { position: "absolute", inset: imageProps.style?.inset ?? 0 } : undefined
       }
     >
       <source type="image/webp" srcSet={createSrcSet(src.webp)} sizes={sizes} />
