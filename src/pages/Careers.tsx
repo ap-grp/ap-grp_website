@@ -3,7 +3,13 @@ import type { PageState } from '../App'
 import ResponsiveImage from '../components/ResponsiveImage'
 import { careerFaqs, careerListings, careersImages } from '../content/careers'
 import { useLang } from '../context/lang'
-import { FORM_SUBMIT_FORM_ENDPOINT, FORM_SUBMIT_MAX_FILE_SIZE } from '../lib/formSubmit'
+import {
+  FORM_SUBMIT_FORM_ENDPOINT,
+  FORM_SUBMIT_MAX_FILE_SIZE,
+  FORM_SUBMIT_SUCCESS_HASH,
+  FORM_SUBMIT_SUCCESS_MESSAGE,
+  FORM_SUBMIT_WINDOW_NAME,
+} from '../lib/formSubmit'
 
 function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -41,8 +47,39 @@ export default function Careers({ navigate: _navigate }: Props) {
   const zh = lang === 'zh'
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [form, setForm] = useState<FormState>({ name: '', email: '', phone: '', position: '', message: '', file: null })
+  const [submitted, setSubmitted] = useState(() => window.location.hash === FORM_SUBMIT_SUCCESS_HASH)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const submissionWindowRef = useRef<Window | null>(null)
+  const applicationSuccessUrl = `${window.location.origin}${window.location.pathname}${FORM_SUBMIT_SUCCESS_HASH}`
+
+  useEffect(() => {
+    const handleSubmissionMessage = (event: MessageEvent) => {
+      if (
+        event.origin !== window.location.origin ||
+        event.source !== submissionWindowRef.current ||
+        event.data !== FORM_SUBMIT_SUCCESS_MESSAGE
+      ) return
+      submissionWindowRef.current = null
+      setSubmitted(true)
+      document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    window.addEventListener('message', handleSubmissionMessage)
+    return () => window.removeEventListener('message', handleSubmissionMessage)
+  }, [])
+
+  useEffect(() => {
+    if (window.location.hash !== FORM_SUBMIT_SUCCESS_HASH) return
+
+    if (window.name === FORM_SUBMIT_WINDOW_NAME && window.opener && !window.opener.closed) {
+      window.opener.postMessage(FORM_SUBMIT_SUCCESS_MESSAGE, window.location.origin)
+      window.close()
+      return
+    }
+
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`)
+  }, [])
 
   const validate = () => {
     const e: typeof errors = {}
@@ -63,7 +100,12 @@ export default function Careers({ navigate: _navigate }: Props) {
       setErrors(errs)
       return
     }
+
     setErrors({})
+    const submissionTab = window.open('', FORM_SUBMIT_WINDOW_NAME)
+    submissionWindowRef.current = submissionTab
+    e.currentTarget.target = submissionTab ? FORM_SUBMIT_WINDOW_NAME : '_self'
+    submissionTab?.focus()
   }
 
   const handleChange = (field: keyof Omit<FormState, 'file'>) => (
@@ -252,11 +294,29 @@ export default function Careers({ navigate: _navigate }: Props) {
 
             <FadeSection delay={0.15}>
               <div>
+                {submitted ? (
+                  <div style={{ padding: '3rem', border: '1px solid #dee2e6', textAlign: 'center' }}>
+                    <div style={{ width: '40px', height: '40px', border: '1px solid #b4906e', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b4906e" strokeWidth="1.5">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 300, marginBottom: '0.75rem', letterSpacing: '0.02em' }}>
+                      {zh ? '申请已提交' : 'application submitted'}
+                    </h3>
+                    <p style={{ fontSize: '0.78rem', color: '#9AA3AC', letterSpacing: '0.02em', lineHeight: 1.7 }}>
+                      {zh
+                        ? '感谢您对a+pgrp的关注。您的申请已提交，我们将在四周内与入围申请者联系。'
+                        : 'thank you for your interest in a+pgrp. your application has been submitted and shortlisted applicants will be contacted within four weeks.'}
+                    </p>
+                  </div>
+                ) : (
                   <form
                     className="enquiry-form"
                     action={FORM_SUBMIT_FORM_ENDPOINT}
                     method="POST"
                     encType="multipart/form-data"
+                    target={FORM_SUBMIT_WINDOW_NAME}
                     onSubmit={handleSubmit}
                     noValidate
                     style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
@@ -265,6 +325,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                     <input type="hidden" name="_subject" value={`Job application — ${form.position} — ${form.name}`} />
                     <input type="hidden" name="_template" value="table" />
                     <input type="hidden" name="_replyto" value={form.email} />
+                    <input type="hidden" name="_next" value={applicationSuccessUrl} />
                     <input type="text" name="_honey" tabIndex={-1} autoComplete="off" style={{ display: 'none' }} />
                     {[
                       { field: 'name' as const, label: zh ? '姓名' : 'full name', type: 'text', required: true },
@@ -405,6 +466,7 @@ export default function Careers({ navigate: _navigate }: Props) {
                       {zh ? '提交申请' : 'submit application'}
                     </button>
                   </form>
+                )}
               </div>
             </FadeSection>
           </div>

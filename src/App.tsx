@@ -13,6 +13,7 @@ import Media from './pages/Media'
 import MediaDetail from './pages/MediaDetail'
 import Careers from './pages/Careers'
 import Contact from './pages/Contact'
+import { FORM_SUBMIT_SUCCESS_HASH } from './lib/formSubmit'
 
 export type PageState =
   | { id: 'home' }
@@ -66,11 +67,15 @@ const withHistoryPage = (page: PageState) => {
 }
 
 export default function App() {
-  const [page, setPage] = useState<PageState>(() => getHistoryPage(window.history.state) ?? { id: 'home' })
+  const [page, setPage] = useState<PageState>(() => (
+    window.location.hash === FORM_SUBMIT_SUCCESS_HASH
+      ? { id: 'careers' }
+      : getHistoryPage(window.history.state) ?? { id: 'home' }
+  ))
 
   useEffect(() => {
-    if (!getHistoryPage(window.history.state)) {
-      window.history.replaceState(withHistoryPage({ id: 'home' }), '')
+    if (window.location.hash === FORM_SUBMIT_SUCCESS_HASH || !getHistoryPage(window.history.state)) {
+      window.history.replaceState(withHistoryPage(page), '')
     }
 
     const handlePopState = (event: PopStateEvent) => {
