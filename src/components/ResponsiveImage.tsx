@@ -1,4 +1,4 @@
-import { useState, type ImgHTMLAttributes, type SyntheticEvent } from "react";
+import { useCallback, useState, type ImgHTMLAttributes, type SyntheticEvent } from "react";
 import type { ResponsiveImageData } from "../types/images";
 
 interface ResponsiveImageProps extends Omit<
@@ -25,6 +25,15 @@ export default function ResponsiveImage({
   const [loadedSource, setLoadedSource] = useState<string | null>(null);
   const softlyReveal = loading === "eager";
 
+  const revealCachedImage = useCallback(
+    (image: HTMLImageElement | null) => {
+      if (image?.complete && image.naturalWidth > 0) {
+        setLoadedSource(src.src);
+      }
+    },
+    [src.src],
+  );
+
   const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     setLoadedSource(src.src);
     onLoad?.(event);
@@ -40,6 +49,7 @@ export default function ResponsiveImage({
     >
       <source type="image/webp" srcSet={createSrcSet(src.webp)} sizes={sizes} />
       <img
+        ref={revealCachedImage}
         {...imageProps}
         src={src.src}
         alt={alt}
