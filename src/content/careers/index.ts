@@ -2,17 +2,17 @@ import heroImage from './images/hero.jpg'
 import type { LocalizedText } from '../types'
 
 // ─────────────────────────────────────────────────────────────
-// JOB CONTENT
+// CAREER CONTENT
 //
-// Add, remove, or reorder vacancies in `jobListings`. Every
+// Add, remove, or reorder vacancies in `careerListings`. Every
 // visitor-facing field has an English and Chinese counterpart.
 // ─────────────────────────────────────────────────────────────
 
-export const jobsImages = {
+export const careersImages = {
   hero: heroImage,
 }
 
-export interface Job {
+export interface CareerListing {
   title: string
   zhTitle: string
   department: string
@@ -26,24 +26,24 @@ export interface Job {
   zhRequirements: string[]
 }
 
-export interface JobFaq {
+export interface CareerFaq {
   question: LocalizedText
   answer: LocalizedText
 }
 
-export const jobFaqs: JobFaq[] = [
+export const careerFaqs: CareerFaq[] = [
   {
     question: { en: 'what positions are currently available?', zh: '目前有哪些开放职位？' },
     answer: {
-      en: 'we currently have openings for a senior architect, interior designer, and urban designer. we are also accepting internship applications on an ongoing basis. please see the listings above for full details.',
-      zh: '我们目前在招募高级建筑师、室内设计师和城市设计师，同时持续接受实习申请。详情请参阅上方招聘列表。',
+      en: 'we currently have openings for a senior architect, architectural designer, and architectural intern. please see the listings above for full details.',
+      zh: '我们目前在招募高级建筑师、建筑设计师和建筑实习生。详情请参阅上方招聘列表。',
     },
   },
   {
     question: { en: 'do you accept internship applications?', zh: '是否接受实习申请？' },
     answer: {
-      en: 'yes. we welcome applications from motivated architectural and design students for internship positions. internships are typically for a minimum of six months and are available across architecture, interior design, and urban design.',
-      zh: '是的。我们欢迎积极上进的建筑与设计专业学生申请实习职位。实习通常最短六个月，涵盖建筑、室内设计和城市设计领域。',
+      en: 'yes. we welcome applications from motivated architecture students for architectural internship positions. internships are typically for a minimum of six months.',
+      zh: '是的。我们欢迎积极上进的建筑专业学生申请建筑实习职位。实习期通常最短为六个月。',
     },
   },
   {
@@ -70,13 +70,13 @@ export const jobFaqs: JobFaq[] = [
   {
     question: { en: 'what file formats can i upload?', zh: '可以上传哪些文件格式？' },
     answer: {
-      en: 'we accept pdf and docx files for your resume and cover letter. for portfolios, pdf is preferred, with a maximum file size of 20mb. if your portfolio is hosted online, you may also share a link.',
-      zh: '简历和求职信接受PDF和DOCX格式。作品集建议使用PDF格式，最大文件大小为20MB。如作品集托管在线上，也可分享链接。',
+      en: 'combine your resume, cover letter, and portfolio into one zip file with a maximum file size of 10mb. if your portfolio is hosted online, you may also include a link in your message.',
+      zh: '请将简历、求职信和作品集合并为一个ZIP文件，文件大小不得超过10MB。如作品集托管在线上，也可在留言中附上链接。',
     },
   },
 ]
 
-export const jobListings: Job[] = [
+export const careerListings: CareerListing[] = [
   {
     title: 'senior architect',
     zhTitle: '高级建筑师',
@@ -105,57 +105,30 @@ export const jobListings: Job[] = [
     ],
   },
   {
-    title: 'interior designer',
-    zhTitle: '室内设计师',
-    department: 'interior design',
-    zhDepartment: '室内设计',
+    title: 'architectural designer',
+    zhTitle: '建筑设计师',
+    department: 'architecture',
+    zhDepartment: '建筑设计',
     location: 'singapore',
     type: 'full-time',
     zhType: '全职',
     description:
-      'we are seeking a skilled interior designer with experience in hospitality and high-end residential projects. you will work closely with our interior design lead on a portfolio of exciting commissions across southeast asia.',
+      'we are seeking a thoughtful architectural designer to join our singapore studio. you will contribute to design development, visualisation, and documentation across a diverse range of projects in southeast asia.',
     zhDescription:
-      '我们正在寻找一位在酒店及高端住宅项目方面经验丰富的室内设计师。您将与室内设计负责人紧密合作，参与整个东南亚的精彩委托项目。',
+      '我们正在寻找一位富有思考力的建筑设计师加入新加坡工作室。您将参与东南亚多类型项目的设计深化、视觉表达及技术文件编制。',
     requirements: [
-      'minimum 4 years of professional experience',
-      'proficiency in autocad, sketchup, and 3ds max or enscape',
-      'strong material and finish specification skills',
-      'experience with ff&e procurement',
-      'attention to detail and passion for craft',
+      'degree in architecture or an equivalent qualification',
+      'minimum 2 years of professional experience',
+      'proficiency in revit, autocad, rhino, and adobe suite',
+      'strong design, visualisation, and technical documentation skills',
+      'collaborative approach and clear communication skills',
     ],
     zhRequirements: [
-      '至少4年专业经验',
-      '熟练使用AutoCAD、SketchUp及3ds Max或Enscape',
-      '较强的材料与饰面规格制定能力',
-      '具有FF&E采购经验',
-      '对工艺的细节把控力与热情',
-    ],
-  },
-  {
-    title: 'urban designer',
-    zhTitle: '城市设计师',
-    department: 'urban planning',
-    zhDepartment: '城市规划',
-    location: 'singapore',
-    type: 'full-time',
-    zhType: '全职',
-    description:
-      'we are looking for a thoughtful urban designer to join our planning and masterplanning team. you will contribute to large-scale urban design and masterplanning commissions across southeast asia.',
-    zhDescription:
-      '我们正在寻找一位具有深度思考能力的城市设计师加入我们的规划与总体规划团队。您将参与整个东南亚的大型城市设计与总体规划项目。',
-    requirements: [
-      'degree in urban design, urban planning, or architecture',
-      'minimum 3 years of professional experience in urban design',
-      'proficiency in autocad, arcgis, and adobe suite',
-      'strong research and analytical skills',
-      'experience preparing planning and design reports',
-    ],
-    zhRequirements: [
-      '城市设计、城市规划或建筑学学位',
-      '至少3年城市设计专业经验',
-      '熟练使用AutoCAD、ArcGIS及Adobe套件',
-      '较强的研究与分析能力',
-      '具有编制规划与设计报告的经验',
+      '建筑学学位或同等学历',
+      '至少2年专业经验',
+      '熟练使用Revit、AutoCAD、Rhino及Adobe套件',
+      '具备较强的设计、视觉表达及技术文件编制能力',
+      '具备团队协作精神及清晰的沟通能力',
     ],
   },
   {

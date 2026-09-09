@@ -1,0 +1,17 @@
+export const FORM_SUBMIT_RECIPIENT = 'tskwilli4m@gmail.com'
+export const FORM_SUBMIT_MAX_FILE_SIZE = 10 * 1024 * 1024
+
+const FORM_SUBMIT_ENDPOINT = `https://formsubmit.co/ajax/${FORM_SUBMIT_RECIPIENT}`
+
+export const submitToFormSubmit = async (payload: FormData) => {
+  const response = await fetch(FORM_SUBMIT_ENDPOINT, {
+    method: 'POST',
+    headers: { Accept: 'application/json' },
+    body: payload,
+  })
+
+  const result = await response.json().catch(() => null)
+  if (!response.ok || result?.success === false || result?.success === 'false') {
+    throw new Error(result?.message || 'Form submission failed')
+  }
+}

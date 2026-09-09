@@ -150,7 +150,7 @@ export default function People({ navigate }: Props) {
             {zh ? '我们始终欢迎才华横溢、充满好奇心的设计师加入我们的事务所。' : 'we are always looking for talented, curious people to join our practice.'}
           </p>
           <button
-            onClick={() => navigate({ id: 'jobs' })}
+            onClick={() => navigate({ id: 'careers' })}
             style={{
               padding: '0.85rem 2.5rem',
               backgroundColor: '#212529',

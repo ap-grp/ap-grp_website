@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { PageState } from '../App'
 import { headquarters, otherOffices } from '../content/offices'
 import { useLang } from '../context/lang'
+import { submitToFormSubmit } from '../lib/formSubmit'
 
 interface Props {
   navigate: (p: PageState) => void
@@ -26,6 +27,8 @@ export default function Contact({ navigate: _navigate }: Props) {
 
   const [form, setForm] = useState<FormState>({ name: '', email: '', phone: '', company: '', enquiryType: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
 
   const validate = () => {
@@ -37,12 +40,38 @@ export default function Contact({ navigate: _navigate }: Props) {
     return e
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
-    setSubmitted(true)
+
+    setSubmitting(true)
+    setSubmitError('')
     setErrors({})
+
+    const payload = new FormData()
+    payload.append('form_type', 'website enquiry')
+    payload.append('name', form.name)
+    payload.append('email', form.email)
+    payload.append('phone', form.phone)
+    payload.append('company', form.company)
+    payload.append('enquiry_type', form.enquiryType)
+    payload.append('message', form.message)
+    payload.append('_subject', `Website enquiry — ${form.enquiryType}`)
+    payload.append('_template', 'table')
+    payload.append('_replyto', form.email)
+    payload.append('_honey', '')
+
+    try {
+      await submitToFormSubmit(payload)
+      setSubmitted(true)
+    } catch {
+      setSubmitError(zh
+        ? '目前无法发送您的消息。请稍后重试或直接发送电子邮件至 info@ap-grp.com。'
+        : 'we could not send your message. please try again or email info@ap-grp.com directly.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleChange = (field: keyof FormState) => (
@@ -205,12 +234,12 @@ export default function Contact({ navigate: _navigate }: Props) {
                     </svg>
                   </div>
                   <h3 style={{ fontSize: '1rem', fontWeight: 300, marginBottom: '0.75rem', letterSpacing: '0.02em' }}>
-                    {zh ? '消息已收到' : 'message received'}
+                    {zh ? '消息已提交' : 'message submitted'}
                   </h3>
                   <p style={{ fontSize: '0.78rem', color: '#9AA3AC', letterSpacing: '0.02em', lineHeight: 1.7 }}>
                     {zh
-                      ? '感谢您的联系，我们的团队将尽快回复您的咨询。'
-                      : 'thank you for getting in touch. a member of our team will respond to your enquiry shortly.'}
+                      ? '感谢您的联系。您的咨询已提交，我们的团队将尽快回复。'
+                      : 'thank you for getting in touch. your enquiry has been submitted and our team will respond shortly.'}
                   </p>
                 </div>
               ) : (
@@ -292,13 +321,15 @@ export default function Contact({ navigate: _navigate }: Props) {
 
                   <button
                     type="submit"
+                    disabled={submitting}
                     style={{
                       marginTop: '0.5rem',
                       padding: '1rem 2rem',
                       backgroundColor: '#212529',
                       color: '#ffffff',
                       border: 'none',
-                      cursor: 'pointer',
+                      cursor: submitting ? 'wait' : 'pointer',
+                      opacity: submitting ? 0.65 : 1,
                       fontSize: '0.7rem',
                       letterSpacing: '0.12em',
                       fontFamily: 'inherit',
@@ -307,8 +338,13 @@ export default function Contact({ navigate: _navigate }: Props) {
                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#b4906e')}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#212529')}
                   >
-                    {zh ? '发送消息' : 'send message'}
+                    {submitting ? (zh ? '正在发送…' : 'sending...') : (zh ? '发送消息' : 'send message')}
                   </button>
+                  {submitError && (
+                    <p role="alert" style={{ fontSize: '0.7rem', color: '#c0392b', lineHeight: 1.6, letterSpacing: '0.02em' }}>
+                      {submitError}
+                    </p>
+                  )}
                 </form>
               )}
             </div>

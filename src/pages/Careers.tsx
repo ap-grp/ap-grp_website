@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import type { PageState } from '../App'
 import ResponsiveImage from '../components/ResponsiveImage'
-import { jobFaqs, jobListings, jobsImages } from '../content/jobs'
+import { careerFaqs, careerListings, careersImages } from '../content/careers'
 import { useLang } from '../context/lang'
+import { FORM_SUBMIT_MAX_FILE_SIZE, submitToFormSubmit } from '../lib/formSubmit'
 
 function FadeSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -35,12 +36,14 @@ interface FormState {
   file: File | null
 }
 
-export default function Jobs({ navigate: _navigate }: Props) {
+export default function Careers({ navigate: _navigate }: Props) {
   const { lang } = useLang()
   const zh = lang === 'zh'
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [form, setForm] = useState<FormState>({ name: '', email: '', phone: '', position: '', message: '', file: null })
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
 
   const validate = () => {
@@ -49,15 +52,44 @@ export default function Jobs({ navigate: _navigate }: Props) {
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = zh ? '请输入有效的电子邮件地址' : 'please enter a valid email address'
     if (!form.position.trim()) e.position = zh ? '请说明您申请的职位' : 'please specify the position you are applying for'
     if (!form.message.trim()) e.message = zh ? '请附上一段简短的自我介绍' : 'please include a short message'
+    if (!form.file) e.file = zh ? '请上传包含所有申请材料的ZIP文件' : 'please upload one zip file containing all application documents'
+    if (form.file && !form.file.name.toLowerCase().endsWith('.zip')) e.file = zh ? '请仅上传ZIP文件' : 'please upload a zip file only'
+    if (form.file && form.file.size > FORM_SUBMIT_MAX_FILE_SIZE) e.file = zh ? 'ZIP文件不得超过10MB' : 'the zip file must be 10mb or smaller'
     return e
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
-    setSubmitted(true)
+
+    setSubmitting(true)
+    setSubmitError('')
     setErrors({})
+
+    const payload = new FormData()
+    payload.append('form_type', 'job application')
+    payload.append('name', form.name)
+    payload.append('email', form.email)
+    payload.append('phone', form.phone)
+    payload.append('position', form.position)
+    payload.append('message', form.message)
+    if (form.file) payload.append('attachment', form.file, form.file.name)
+    payload.append('_subject', `Job application — ${form.position} — ${form.name}`)
+    payload.append('_template', 'table')
+    payload.append('_replyto', form.email)
+    payload.append('_honey', '')
+
+    try {
+      await submitToFormSubmit(payload)
+      setSubmitted(true)
+    } catch {
+      setSubmitError(zh
+        ? '目前无法提交您的申请。请稍后重试或直接发送电子邮件至 info@ap-grp.com。'
+        : 'we could not submit your application. please try again or email info@ap-grp.com directly.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleChange = (field: keyof Omit<FormState, 'file'>) => (
@@ -65,6 +97,12 @@ export default function Jobs({ navigate: _navigate }: Props) {
   ) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    setForm((prev) => ({ ...prev, file }))
+    if (errors.file) setErrors((prev) => ({ ...prev, file: undefined }))
   }
 
   const inputStyle = (hasError?: boolean): React.CSSProperties => ({
@@ -92,7 +130,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
         }}
       >
         <ResponsiveImage
-          src={jobsImages.hero}
+          src={careersImages.hero}
           alt="studio"
           sizes="100vw"
           loading="eager"
@@ -151,7 +189,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
             </p>
           </FadeSection>
           <div>
-            {jobListings.map((job, i) => (
+            {careerListings.map((job, i) => (
               <FadeSection key={i} delay={i * 0.08}>
                 <div style={{ padding: '2rem 0', borderBottom: '1px solid #dee2e6' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'nowrap' }}>
@@ -226,6 +264,9 @@ export default function Jobs({ navigate: _navigate }: Props) {
                 {zh
                   ? '请填写表格并附上您的简历和作品集。我们将在四周内与您联系。'
                   : 'complete the form and attach your resume and portfolio. we will be in touch within four weeks.'}
+                <br />
+                {zh ? '或者，将您的申请材料直接发送至 ' : 'alternatively, email your application directly to '}
+                <a href="mailto:info@ap-grp.com" style={{ color: '#b4906e', textDecoration: 'none', font: 'inherit', letterSpacing: 'inherit' }}>info@ap-grp.com</a>.
               </p>
             </FadeSection>
 
@@ -239,12 +280,12 @@ export default function Jobs({ navigate: _navigate }: Props) {
                       </svg>
                     </div>
                     <h3 style={{ fontSize: '1rem', fontWeight: 300, marginBottom: '0.75rem', letterSpacing: '0.02em' }}>
-                      {zh ? '申请已收到' : 'application received'}
+                      {zh ? '申请已提交' : 'application submitted'}
                     </h3>
                     <p style={{ fontSize: '0.78rem', color: '#9AA3AC', letterSpacing: '0.02em', lineHeight: 1.7 }}>
                       {zh
-                        ? '感谢您对a+pgrp的关注。我们将审阅您的申请，并在四周内与您联系。'
-                        : 'thank you for your interest in a+pgrp. we will review your application and be in touch within four weeks.'}
+                        ? '感谢您对a+pgrp的关注。您的申请已提交，我们将在四周内与入围申请者联系。'
+                        : 'thank you for your interest in a+pgrp. your application has been submitted and shortlisted applicants will be contacted within four weeks.'}
                     </p>
                   </div>
                 ) : (
@@ -280,7 +321,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
                         style={{ ...inputStyle(!!errors.position), appearance: 'none', cursor: 'pointer' }}
                       >
                         <option value="">{zh ? '选择职位…' : 'select position...'}</option>
-                        {jobListings.map((j) => (
+                        {careerListings.map((j) => (
                           <option key={j.title} value={j.title}>{j.title}</option>
                         ))}
                         <option value="general application">{zh ? '主动申请' : 'general application'}</option>
@@ -305,10 +346,10 @@ export default function Jobs({ navigate: _navigate }: Props) {
 
                     <div>
                       <label style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.1em', color: '#9AA3AC', marginBottom: '0.5rem' }}>
-                        {zh ? '作品集 / 简历（PDF、DOCX — 最大20MB）' : 'portfolio / résumé (pdf, docx — max 20mb)'}
+                        {zh ? '申请材料（1个ZIP文件 — 最大10MB）' : 'application documents (1 zip file — max 10mb)'} <span style={{ color: '#b4906e' }}>*</span>
                       </label>
                       <label
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', border: '1px solid #dee2e6', padding: '0.85rem 1rem', cursor: 'pointer', transition: 'border-color 0.2s ease' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', border: `1px solid ${errors.file ? '#c0392b' : '#dee2e6'}`, padding: '0.85rem 1rem', cursor: 'pointer', transition: 'border-color 0.2s ease' }}
                         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#212529')}
                         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = '#dee2e6')}
                       >
@@ -320,22 +361,25 @@ export default function Jobs({ navigate: _navigate }: Props) {
                         </span>
                         <input
                           type="file"
-                          accept=".pdf,.docx"
+                          accept=".zip,application/zip,application/x-zip-compressed"
                           style={{ display: 'none' }}
-                          onChange={(e) => setForm((prev) => ({ ...prev, file: e.target.files?.[0] || null }))}
+                          onChange={handleFileChange}
                         />
                       </label>
+                      {errors.file && <p style={{ fontSize: '0.65rem', color: '#c0392b', marginTop: '0.35rem', letterSpacing: '0.04em' }}>{errors.file}</p>}
                     </div>
 
                     <button
                       type="submit"
+                      disabled={submitting}
                       style={{
                         marginTop: '0.5rem',
                         padding: '1rem 2rem',
                         backgroundColor: '#212529',
                         color: '#ffffff',
                         border: 'none',
-                        cursor: 'pointer',
+                        cursor: submitting ? 'wait' : 'pointer',
+                        opacity: submitting ? 0.65 : 1,
                         fontSize: '0.7rem',
                         letterSpacing: '0.12em',
                         fontFamily: 'inherit',
@@ -344,8 +388,13 @@ export default function Jobs({ navigate: _navigate }: Props) {
                       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#b4906e')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#212529')}
                     >
-                      {zh ? '提交申请' : 'submit application'}
+                      {submitting ? (zh ? '正在提交…' : 'submitting...') : (zh ? '提交申请' : 'submit application')}
                     </button>
+                    {submitError && (
+                      <p role="alert" style={{ fontSize: '0.7rem', color: '#c0392b', lineHeight: 1.6, letterSpacing: '0.02em' }}>
+                        {submitError}
+                      </p>
+                    )}
                   </form>
                 )}
               </div>
@@ -366,7 +415,7 @@ export default function Jobs({ navigate: _navigate }: Props) {
             </FadeSection>
             <FadeSection delay={0.15}>
               <div>
-                {jobFaqs.map((faq, i) => (
+                {careerFaqs.map((faq, i) => (
                   <div key={i} style={{ borderBottom: '1px solid #dee2e6' }}>
                     <button
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}

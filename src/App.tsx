@@ -11,7 +11,7 @@ import PersonDetail from './pages/PersonDetail'
 import Services from './pages/Services'
 import Media from './pages/Media'
 import MediaDetail from './pages/MediaDetail'
-import Jobs from './pages/Jobs'
+import Careers from './pages/Careers'
 import Contact from './pages/Contact'
 
 export type PageState =
@@ -24,7 +24,7 @@ export type PageState =
   | { id: 'services' }
   | { id: 'media'; category?: string }
   | { id: 'media-detail'; slug: string }
-  | { id: 'jobs' }
+  | { id: 'careers' }
   | { id: 'contact' }
 
 const HISTORY_STATE_KEY = 'apgrpPage'
@@ -40,7 +40,7 @@ const isPageState = (value: unknown): value is PageState => {
     'people',
     'services',
     'media',
-    'jobs',
+    'careers',
     'contact',
   ]
 
@@ -108,8 +108,8 @@ export default function App() {
         return <Media navigate={navigate} initialCategory={page.category} />
       case 'media-detail':
         return <MediaDetail slug={page.slug} navigate={navigate} />
-      case 'jobs':
-        return <Jobs navigate={navigate} />
+      case 'careers':
+        return <Careers navigate={navigate} />
       case 'contact':
         return <Contact navigate={navigate} />
       default:

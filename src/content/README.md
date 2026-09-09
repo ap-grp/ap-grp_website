@@ -8,10 +8,10 @@ Visitor-facing collections live here so they can be edited without changing page
 - `services/` — slideshow text in `index.ts` and all service images under `images/`
 - `home/images/` — Home hero slideshow and contact CTA images
 - `our-story/images/` — Our Story hero and full-width section images
-- `jobs/` — current vacancies in `index.ts` and Jobs page images under `images/`
+- `careers/` — current vacancies in `index.ts` and Careers page images under `images/`
 - `offices/index.ts` — Contact details plus Our Story map coordinates, layout offsets, and bilingual pin labels
 
-Keep English and Chinese fields together when editing or adding content. Array order controls display order for projects, people, media articles, services, job listings, and offices.
+Keep English and Chinese fields together when editing or adding content. Array order controls display order for projects, people, media articles, services, career listings, and offices.
 
 ## Images
 

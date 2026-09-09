@@ -26,7 +26,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
     { label: { en: 'services', zh: '服务' }, page: 'services' },
     { label: { en: 'projects', zh: '项目' }, page: 'projects' },
     { label: { en: 'media', zh: '媒体' }, page: 'media' },
-    { label: { en: 'jobs', zh: '招聘' }, page: 'jobs' },
+    { label: { en: 'career', zh: '招聘' }, page: 'careers' },
     { label: { en: 'contact', zh: '联系我们' }, page: 'contact' },
   ]
 
