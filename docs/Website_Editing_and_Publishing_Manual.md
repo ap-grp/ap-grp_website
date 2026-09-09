@@ -5,7 +5,7 @@
 **Version:** 1.1  
 **Prepared:** 3 September 2026  
 **Website technology:** React + Vite  
-**Source code:** <https://github.com/tskwilliam/a-pgrp_website>  
+**Source code:** <https://github.com/ap-grp/ap-grp_website>  
 **Main branch:** `master`
 
 > SCOPE OF THIS EDITION: This manual explains setup, content editing, and checking the website on your own computer. It deliberately stops at local preview. It does not explain how to build, upload, publish, or replace the live WordPress website.
@@ -55,9 +55,9 @@ This edition does not cover:
 
 | Item | Current value |
 |---|---|
-| GitHub repository | `https://github.com/tskwilliam/a-pgrp_website` |
+| GitHub repository | `https://github.com/ap-grp/ap-grp_website` |
 | Main branch | `master` |
-| Recommended local folder | `C:\Website Projects\a-pgrp_website` |
+| Recommended local folder | `C:\Website Projects\ap-grp_website` |
 | Local preview address | `http://localhost:8443/` |
 | Languages | English (`en`) and Chinese (`zh`) |
 | Existing live-site system | WordPress on Vodien, managed through cPanel |
@@ -94,7 +94,7 @@ The public domain will not change just because the editor changes local files. W
 
 Ask the website owner or IT administrator for:
 
-- A GitHub account with access to `tskwilliam/a-pgrp_website`.
+- A GitHub account with access to `ap-grp/ap-grp_website`.
 - A company ChatGPT/Codex or Claude account, if the company has one.
 - The name of the person who approves website wording and images.
 - The name of a technical contact for problems that AI cannot safely resolve.
@@ -110,15 +110,15 @@ The project must be stored on the computer's local drive in a folder that is not
 Use a location such as:
 
 ```text
-C:\Website Projects\a-pgrp_website
+C:\Website Projects\ap-grp_website
 ```
 
 Do not use locations such as:
 
 ```text
-C:\Users\YourName\OneDrive\Desktop\a-pgrp_website
-C:\Users\YourName\OneDrive\Documents\a-pgrp_website
-C:\Users\YourName\Dropbox\a-pgrp_website
+C:\Users\YourName\OneDrive\Desktop\ap-grp_website
+C:\Users\YourName\OneDrive\Documents\ap-grp_website
+C:\Users\YourName\Dropbox\ap-grp_website
 ```
 
 Many company computers automatically connect Desktop and Documents to OneDrive. Check the full folder address before cloning. Cloud-sync software can lock, duplicate, or partially synchronise the thousands of small project files and can interfere with Git.
@@ -169,7 +169,7 @@ Official instructions: [OpenAI Codex quickstart](https://learn.chatgpt.com/docs/
 2. Download and install the ChatGPT desktop app for Windows.
 3. Sign in with the authorised company ChatGPT account if one exists. Otherwise use an approved personal account.
 4. Open the **Codex** area in the app.
-5. When asked to choose a project, select `C:\Website Projects\a-pgrp_website`.
+5. When asked to choose a project, select `C:\Website Projects\ap-grp_website`.
 6. Allow Codex to read and edit only this project folder.
 
 Codex is currently included with ChatGPT Free, but the Free plan is intended for smaller or occasional coding tasks. Usage limits vary with the size and difficulty of the work and may run out during a longer session. Limits and plan features can change. Check [OpenAI's current Codex pricing and limits](https://learn.chatgpt.com/docs/codex/pricing) rather than relying on an old quota.
@@ -257,10 +257,10 @@ Complete this section once on the editor's computer.
 4. In **Repository URL**, enter:
 
 ```text
-https://github.com/tskwilliam/a-pgrp_website.git
+https://github.com/ap-grp/ap-grp_website.git
 ```
 
-5. For **Local path**, choose `C:\Website Projects\a-pgrp_website`.
+5. For **Local path**, choose `C:\Website Projects\ap-grp_website`.
 6. Click **Clone**.
 7. Confirm **Current branch** at the top of GitHub Desktop says `master`.
 
@@ -273,7 +273,7 @@ If GitHub says the repository cannot be found, the signed-in account probably do
 3. In the left file panel, confirm you can see `package.json`, `src`, and `README.md`.
 4. If those items are missing, close the window and reopen the correct repository from GitHub Desktop.
 
-To use Codex desktop instead, open Codex and choose the same `C:\Website Projects\a-pgrp_website` folder.
+To use Codex desktop instead, open Codex and choose the same `C:\Website Projects\ap-grp_website` folder.
 
 ## 4.4 Install the project packages
 

@@ -2,7 +2,11 @@
 
 This project is a Vite + React site deployed to GitHub Pages for:
 
-`https://tskwilliam.github.io/a-pgrp_website/`
+`https://ap-grp.github.io/ap-grp_website/`
+
+Source repository:
+
+`https://github.com/ap-grp/ap-grp_website`
 
 ## Deployment Model
 
@@ -39,8 +43,8 @@ Use this path if you have the full repository and can install dependencies.
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/tskwilliam/a-pgrp_website.git
-cd a-pgrp_website
+git clone https://github.com/ap-grp/ap-grp_website.git
+cd ap-grp_website
 ```
 
 2. Install dependencies:
@@ -67,7 +71,7 @@ npm run dev
 4. Build locally if needed:
 
 ```bash
-env VITE_BASE_PATH=/a-pgrp_website/ npm run build
+env VITE_BASE_PATH=/ap-grp_website/ npm run build
 ```
 
 5. Commit and push:
@@ -123,7 +127,7 @@ mkdir gh-pages-upload
 cd gh-pages-upload
 git init
 git checkout -b gh-pages
-git remote add origin https://github.com/tskwilliam/a-pgrp_website.git
+git remote add origin https://github.com/ap-grp/ap-grp_website.git
 ```
 
 3. Copy the contents of `dist/` into this folder.
@@ -146,6 +150,6 @@ After GitHub Pages finishes publishing, the website will be live again.
 
 ## Notes
 
-- The project base path is `/a-pgrp_website/`, which is required for GitHub Pages project hosting.
+- The project base path is `/ap-grp_website/`, which is required for GitHub Pages project hosting.
 - The deployment workflow rebuilds from source. If source is available, use the normal source-based redeploy path.
 - The `dist/`-only method is a fallback for emergencies or handoff situations.
