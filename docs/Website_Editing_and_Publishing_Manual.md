@@ -1,4 +1,5 @@
 # a+pgrp Website
+
 ## Editing Manual
 
 **For a non-technical website editor**  
@@ -53,30 +54,30 @@ This edition does not cover:
 
 ## Important project details
 
-| Item | Current value |
-|---|---|
-| GitHub repository | `https://github.com/ap-grp/ap-grp_website` |
-| Main branch | `master` |
-| Recommended local folder | `C:\Website Projects\ap-grp_website` |
-| Local preview address | `http://localhost:8443/` |
-| Languages | English (`en`) and Chinese (`zh`) |
+| Item                      | Current value                               |
+| ------------------------- | ------------------------------------------- |
+| GitHub repository         | `https://github.com/ap-grp/ap-grp_website`  |
+| Main branch               | `master`                                    |
+| Recommended local folder  | `C:\Website Projects\ap-grp_website`        |
+| Local preview address     | `http://localhost:8443/`                    |
+| Languages                 | English (`en`) and Chinese (`zh`)           |
 | Existing live-site system | WordPress on Vodien, managed through cPanel |
 
 [[PAGEBREAK]]
 
 # 2. How the website system fits together
 
-| Name | Plain-language meaning | What the editor uses it for now |
-|---|---|---|
-| Domain | The public website address | Nothing during routine local editing |
-| Vodien | The company that hosts the live website | Nothing in this edition |
-| cPanel | The control panel for the Vodien server | Nothing in this edition |
-| WordPress | The software running the current live website | It does not edit this new website code |
-| GitHub | The company's online master copy of the editable code | Download the project from here |
-| GitHub Desktop | A friendly application for working with GitHub | Clone the project and view changed files |
-| Visual Studio Code | A text and code editor | Open files and make careful manual edits |
-| Codex or Claude Code | An AI coding assistant | Find files, make requested edits, explain errors, and help check the result |
-| Local preview | A private copy shown only on the editor's computer | Check changes before any future publishing work |
+| Name                 | Plain-language meaning                                | What the editor uses it for now                                             |
+| -------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| Domain               | The public website address                            | Nothing during routine local editing                                        |
+| Vodien               | The company that hosts the live website               | Nothing in this edition                                                     |
+| cPanel               | The control panel for the Vodien server               | Nothing in this edition                                                     |
+| WordPress            | The software running the current live website         | It does not edit this new website code                                      |
+| GitHub               | The company's online master copy of the editable code | Download the project from here                                              |
+| GitHub Desktop       | A friendly application for working with GitHub        | Clone the project and view changed files                                    |
+| Visual Studio Code   | A text and code editor                                | Open files and make careful manual edits                                    |
+| Codex or Claude Code | An AI coding assistant                                | Find files, make requested edits, explain errors, and help check the result |
+| Local preview        | A private copy shown only on the editor's computer    | Check changes before any future publishing work                             |
 
 For this edition, the workflow is:
 
@@ -413,14 +414,14 @@ An unescaped apostrophe inside single quotation marks can break the website prev
 
 The Home page contains the hero slideshow, introduction text, statistics, four selected projects, one featured media article, and the contact image and message.
 
-| Content | Where to find it |
-|---|---|
-| Hero slideshow images | `src/content/home/images/` and `src/content/home/index.ts` |
-| Contact image | `src/content/home/images/contact-cta.jpg` |
-| Main reusable Home wording | `src/i18n/index.ts`, under `home` |
-| Introduction, statistics, and some visible wording | `src/pages/Home.tsx` |
-| Four recent projects | First four entries in `src/content/projects/index.ts` |
-| Featured media article | First entry in `src/content/media/index.ts` |
+| Content                                            | Where to find it                                           |
+| -------------------------------------------------- | ---------------------------------------------------------- |
+| Hero slideshow images                              | `src/content/home/images/` and `src/content/home/index.ts` |
+| Contact image                                      | `src/content/home/images/contact-cta.jpg`                  |
+| Main reusable Home wording                         | `src/i18n/index.ts`, under `home`                          |
+| Introduction, statistics, and some visible wording | `src/pages/Home.tsx`                                       |
+| Four recent projects                               | First four entries in `src/content/projects/index.ts`      |
+| Featured media article                             | First entry in `src/content/media/index.ts`                |
 
 ## Change a Home image
 
@@ -445,12 +446,12 @@ The first four items in the ordered `projects` array appear on Home. The first i
 
 # 7. Our Story page
 
-| Content | Where to find it |
-|---|---|
-| Story and approach wording | `src/i18n/index.ts`, under `ourStory` |
-| Story images | `src/content/our-story/images/` and `src/content/our-story/index.ts` |
-| Timeline, awards, and some longer paragraphs | `src/pages/OurStory.tsx` |
-| Office map labels and pin locations | `src/content/offices/index.ts` |
+| Content                                      | Where to find it                                                     |
+| -------------------------------------------- | -------------------------------------------------------------------- |
+| Story and approach wording                   | `src/i18n/index.ts`, under `ourStory`                                |
+| Story images                                 | `src/content/our-story/images/` and `src/content/our-story/index.ts` |
+| Timeline, awards, and some longer paragraphs | `src/pages/OurStory.tsx`                                             |
+| Office map labels and pin locations          | `src/content/offices/index.ts`                                       |
 
 ## Edit story text
 
@@ -483,20 +484,20 @@ Each project has its own folder inside `src/content/projects`. The folder contai
 5. Keep the English and Chinese fields together.
 6. Save and check the Projects listing, project detail page, filters, and both languages.
 
-| Field | Meaning | Editing note |
-|---|---|---|
-| `slug` | Unique internal page name | Do not change after launch without technical help |
-| `title.en`, `title.zh` | Project name | Update both languages |
-| `location.en`, `location.zh` | Location | Update both languages |
-| `year` | Project year | Use text such as `'2026'` or keep `''` if hidden |
-| `type` | Project category or categories | Copy an existing allowed category exactly |
-| `status` | Project stage | Copy an existing allowed status exactly |
-| `gfa` | Gross floor area | Keep the unit |
-| `estimatedCost` | Cost | Keep the currency |
-| `description.en`, `description.zh` | Main description | Update both languages |
-| `awards` | Bilingual awards | Keep the existing item pattern |
-| `images` | Gallery images and order | Do not alter imports manually unless confident |
-| `related` | Slugs of related projects | Slugs must exactly match existing projects |
+| Field                              | Meaning                        | Editing note                                      |
+| ---------------------------------- | ------------------------------ | ------------------------------------------------- |
+| `slug`                             | Unique internal page name      | Do not change after launch without technical help |
+| `title.en`, `title.zh`             | Project name                   | Update both languages                             |
+| `location.en`, `location.zh`       | Location                       | Update both languages                             |
+| `year`                             | Project year                   | Use text such as `'2026'` or keep `''` if hidden  |
+| `type`                             | Project category or categories | Copy an existing allowed category exactly         |
+| `status`                           | Project stage                  | Copy an existing allowed status exactly           |
+| `gfa`                              | Gross floor area               | Keep the unit                                     |
+| `estimatedCost`                    | Cost                           | Keep the currency                                 |
+| `description.en`, `description.zh` | Main description               | Update both languages                             |
+| `awards`                           | Bilingual awards               | Keep the existing item pattern                    |
+| `images`                           | Gallery images and order       | Do not alter imports manually unless confident    |
+| `related`                          | Slugs of related projects      | Slugs must exactly match existing projects        |
 
 ## Add a project
 
@@ -592,12 +593,12 @@ Ask an AI agent to copy an existing article folder, replace the text and image, 
 
 # 12. Jobs page
 
-| Content | Where to find it |
-|---|---|
-| Jobs hero images | `src/content/jobs/images/` and `src/content/jobs/index.ts` |
-| Vacancy list | `src/content/jobs/index.ts`, under `jobListings` |
-| Frequently asked questions | `src/pages/Jobs.tsx`, under `const faqs` |
-| Introductory wording and application form labels | `src/pages/Jobs.tsx` |
+| Content                                          | Where to find it                                           |
+| ------------------------------------------------ | ---------------------------------------------------------- |
+| Jobs hero images                                 | `src/content/jobs/images/` and `src/content/jobs/index.ts` |
+| Vacancy list                                     | `src/content/jobs/index.ts`, under `jobListings`           |
+| Frequently asked questions                       | `src/pages/Jobs.tsx`, under `const faqs`                   |
+| Introductory wording and application form labels | `src/pages/Jobs.tsx`                                       |
 
 ## Edit a vacancy
 
@@ -619,12 +620,12 @@ Search `src/pages/Jobs.tsx` for `const faqs`. Keep the English and Chinese quest
 
 # 13. Contact page
 
-| Content | Where to find it |
-|---|---|
-| Main office and other office details | `src/content/offices/index.ts` |
-| Map links and embedded maps | `src/content/offices/index.ts` |
-| Contact wording, enquiry choices, and form labels | `src/pages/Contact.tsx` |
-| Repeated footer address and email | `src/components/Footer.tsx` |
+| Content                                           | Where to find it               |
+| ------------------------------------------------- | ------------------------------ |
+| Main office and other office details              | `src/content/offices/index.ts` |
+| Map links and embedded maps                       | `src/content/offices/index.ts` |
+| Contact wording, enquiry choices, and form labels | `src/pages/Contact.tsx`        |
+| Repeated footer address and email                 | `src/components/Footer.tsx`    |
 
 ## Edit office details
 

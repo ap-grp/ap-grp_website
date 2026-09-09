@@ -1,9 +1,9 @@
-import hero from './images/hero.jpg'
-import philosophy from './images/philosophy.jpg'
-import recognition from './images/recognition.jpg'
+import hero from "./images/hero.jpg?responsive";
+import philosophy from "./images/philosophy.jpg?responsive";
+import recognition from "./images/recognition.jpg?responsive";
 
 export const ourStoryImages = {
   hero,
   philosophy,
   recognition,
-}
+};

@@ -1,72 +1,55 @@
-import { useState, type ImgHTMLAttributes, type SyntheticEvent } from 'react'
-import { getResponsiveImage } from '../lib/responsiveImages'
+import { useState, type ImgHTMLAttributes, type SyntheticEvent } from "react";
+import type { ResponsiveImageData } from "../types/images";
 
-interface ResponsiveImageProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'height' | 'src' | 'srcSet' | 'width'> {
-  src: string
-  sizes: string
+interface ResponsiveImageProps extends Omit<
+  ImgHTMLAttributes<HTMLImageElement>,
+  "height" | "src" | "srcSet" | "width"
+> {
+  src: ResponsiveImageData;
+  sizes: string;
 }
 
 function createSrcSet(variants: Array<{ src: string; width: number }>) {
-  return variants.map((variant) => `${variant.src} ${variant.width}w`).join(', ')
+  return variants.map((variant) => `${variant.src} ${variant.width}w`).join(", ");
 }
 
 export default function ResponsiveImage({
   src,
   sizes,
-  alt = '',
-  loading = 'lazy',
-  decoding = 'async',
+  alt = "",
+  loading = "lazy",
+  decoding = "async",
   onLoad,
   ...imageProps
 }: ResponsiveImageProps) {
-  const responsiveImage = getResponsiveImage(src)
-  const [loadedSource, setLoadedSource] = useState<string | null>(null)
-  const softlyReveal = loading === 'eager'
+  const [loadedSource, setLoadedSource] = useState<string | null>(null);
+  const softlyReveal = loading === "eager";
 
   const handleLoad = (event: SyntheticEvent<HTMLImageElement>) => {
-    setLoadedSource(src)
-    onLoad?.(event)
-  }
-
-  if (!responsiveImage) {
-    return (
-      <img
-        {...imageProps}
-        src={src}
-        alt={alt}
-        sizes={sizes}
-        loading={loading}
-        decoding={decoding}
-        onLoad={handleLoad}
-      />
-    )
-  }
+    setLoadedSource(src.src);
+    onLoad?.(event);
+  };
 
   return (
     <picture
       className={
         softlyReveal
-          ? `soft-image-reveal${loadedSource === src ? ' is-loaded' : ''}`
+          ? `soft-image-reveal${loadedSource === src.src ? " is-loaded" : ""}`
           : undefined
       }
     >
-      <source
-        type="image/webp"
-        srcSet={createSrcSet(responsiveImage.webp)}
-        sizes={sizes}
-      />
+      <source type="image/webp" srcSet={createSrcSet(src.webp)} sizes={sizes} />
       <img
         {...imageProps}
-        src={responsiveImage.src}
+        src={src.src}
         alt={alt}
-        width={responsiveImage.width}
-        height={responsiveImage.height}
+        width={src.width}
+        height={src.height}
         sizes={sizes}
         loading={loading}
         decoding={decoding}
         onLoad={handleLoad}
       />
     </picture>
-  )
+  );
 }

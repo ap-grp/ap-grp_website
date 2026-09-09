@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Questrial&display=swap");
+@import "tailwindcss";
 
 @theme inline {
-  --font-sans: 'Century Gothic', 'CenturyGothic', 'Century Gothic Std', 'Questrial', sans-serif;
+  --font-sans: "Century Gothic", "CenturyGothic", "Century Gothic Std", "Questrial", sans-serif;
   --color-background: #ffffff;
   --color-foreground: #212529;
   --color-card: #f8f9fa;
@@ -12,7 +12,7 @@
   --color-secondary: #e9ecef;
   --color-secondary-foreground: #212529;
   --color-muted: #f8f9fa;
-  --color-muted-foreground: #9AA3AC;
+  --color-muted-foreground: #9aa3ac;
   --color-accent: #b4906e;
   --color-accent-foreground: #ffffff;
   --color-border: #dee2e6;
@@ -25,7 +25,7 @@ html {
 }
 
 body {
-  font-family: 'Century Gothic', 'CenturyGothic', 'Century Gothic Std', 'Questrial', sans-serif;
+  font-family: "Century Gothic", "CenturyGothic", "Century Gothic Std", "Questrial", sans-serif;
   background-color: #ffffff;
   color: #212529;
   -webkit-font-smoothing: antialiased;
@@ -45,6 +45,11 @@ body * {
 
 .uploaded-file-name {
   text-transform: none !important;
+}
+
+.file-upload-label:hover,
+.file-upload-label:focus-within {
+  border-color: #212529 !important;
 }
 
 * {
@@ -67,7 +72,9 @@ body * {
 .fade-in {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
 }
 .fade-in.visible {
   opacity: 1;
@@ -120,7 +127,7 @@ body * {
   font-size: 0.7rem;
 }
 .nav-link::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -137,7 +144,9 @@ body * {
 .service-section {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
 }
 .service-section.visible {
   opacity: 1;
@@ -171,7 +180,7 @@ body * {
 }
 
 .story-map-label::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -0.5rem;
 }
@@ -255,15 +264,15 @@ body * {
 
   /* Separate the tightly grouped east-coast offices while retaining their
      geographic order on small screens. */
-  .story-map-label[data-office='nanjing'] {
+  .story-map-label[data-office="nanjing"] {
     margin-top: -0.55rem;
   }
 
-  .story-map-label[data-office='suzhou'] {
+  .story-map-label[data-office="suzhou"] {
     margin-top: 0.2rem;
   }
 
-  .story-map-label[data-office='shanghai'] {
+  .story-map-label[data-office="shanghai"] {
     margin-top: 0.8rem;
   }
 }
