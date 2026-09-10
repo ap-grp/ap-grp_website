@@ -1,8 +1,6 @@
 # a+pgrp Website
 
-This project is a Vite + React site deployed to GitHub Pages for:
-
-`https://ap-grp.github.io/ap-grp_website/`
+This project is a Vite + React site deployed to a custom domain through GitHub Pages.
 
 Source repository:
 
@@ -71,7 +69,7 @@ npm run dev
 4. Build locally if needed:
 
 ```bash
-env VITE_BASE_PATH=/ap-grp_website/ npm run build
+env VITE_BASE_PATH=/ npm run build
 ```
 
 5. Commit and push:
@@ -150,6 +148,6 @@ After GitHub Pages finishes publishing, the website will be live again.
 
 ## Notes
 
-- The project base path is `/ap-grp_website/`, which is required for GitHub Pages project hosting.
+- The production base path is `/` because the site is served from a custom domain.
 - The deployment workflow rebuilds from source. If source is available, use the normal source-based redeploy path.
 - The `dist/`-only method is a fallback for emergencies or handoff situations.
