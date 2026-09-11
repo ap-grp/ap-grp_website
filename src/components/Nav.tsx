@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import type { PageState } from "../App";
 import { useLang } from "../context/lang";
 import logoUrl from "../assets/ap-grp_logo.svg";
+import SiteSearchResults, { getSiteSearchResults } from "./SiteSearchResults";
 
 interface NavProps {
   currentPage: string;
@@ -16,6 +17,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [desktopSearch, setDesktopSearch] = useState("");
   const [mobileSearch, setMobileSearch] = useState("");
   const [desktopFits, setDesktopFits] = useState(true);
   const navRef = useRef<HTMLElement>(null);
@@ -23,6 +25,8 @@ export default function Nav({ currentPage, navigate }: NavProps) {
   const desktopLinksRef = useRef<HTMLDivElement>(null);
   const desktopUtilitiesRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const desktopSearchControlRef = useRef<HTMLDivElement>(null);
+  const desktopSearchResultsRef = useRef<HTMLDivElement>(null);
   const desktopFitsRef = useRef(true);
 
   const links: { label: { en: string; zh: string }; page: PageState["id"] }[] = [
@@ -48,8 +52,28 @@ export default function Nav({ currentPage, navigate }: NavProps) {
   const navigateAndClose = (newPage: PageState) => {
     setMenuOpen(false);
     setSearchOpen(false);
+    setDesktopSearch("");
+    setMobileSearch("");
     navigate(newPage);
   };
+
+  const handleSearchKeyDown =
+    (query: string, source: "desktop" | "mobile") =>
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Escape") {
+        if (source === "desktop") {
+          setSearchOpen(false);
+          setDesktopSearch("");
+        } else {
+          setMobileSearch("");
+        }
+        return;
+      }
+
+      if (event.key !== "Enter") return;
+      const firstResult = getSiteSearchResults(query, lang, 1)[0];
+      if (firstResult) navigateAndClose(firstResult.page);
+    };
 
   useEffect(() => {
     const closeNavigation = () => {
@@ -118,6 +142,25 @@ export default function Nav({ currentPage, navigate }: NavProps) {
 
     const frame = window.requestAnimationFrame(() => searchInputRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
+  }, [desktopFits, searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen || !desktopFits) return;
+
+    const closeSearchOnOutsidePointer = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (
+        desktopSearchControlRef.current?.contains(target) ||
+        desktopSearchResultsRef.current?.contains(target)
+      )
+        return;
+
+      setSearchOpen(false);
+      setDesktopSearch("");
+    };
+
+    document.addEventListener("pointerdown", closeSearchOnOutsidePointer);
+    return () => document.removeEventListener("pointerdown", closeSearchOnOutsidePointer);
   }, [desktopFits, searchOpen]);
 
   return (
@@ -278,33 +321,107 @@ export default function Nav({ currentPage, navigate }: NavProps) {
               "opacity 0.25s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0s linear 0.25s",
           }}
         >
-          <button
-            onClick={() => setSearchOpen(!searchOpen)}
-            aria-label="search"
-            tabIndex={desktopFits ? 0 : -1}
+          <div
+            ref={desktopSearchControlRef}
             style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: isTransparent ? "#ffffff" : "#212529",
-              padding: 0,
-              display: "flex",
-              alignItems: "center",
-              transition: "color 0.4s ease",
+              position: "relative",
+              width: "16px",
+              height: "36px",
+              flexShrink: 0,
             }}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={desktopSearch}
+              onChange={(event) => setDesktopSearch(event.target.value)}
+              onKeyDown={handleSearchKeyDown(desktopSearch, "desktop")}
+              aria-label={lang === "en" ? "search the site" : "搜索网站"}
+              aria-expanded={desktopSearch.trim().length > 0}
+              placeholder={lang === "en" ? "search..." : "搜索…"}
+              className={`desktop-site-search-input${isTransparent ? " on-dark" : ""}`}
+              tabIndex={desktopFits && searchOpen ? 0 : -1}
+              style={{
+                position: "absolute",
+                zIndex: 1,
+                top: 0,
+                right: 0,
+                width: "240px",
+                height: "36px",
+                padding: "0.55rem 0.75rem 0.55rem 2.55rem",
+                border: isTransparent
+                  ? "1px solid rgba(255,255,255,0.42)"
+                  : "1px solid rgba(222,226,230,0.9)",
+                outline: "none",
+                backgroundColor: isTransparent
+                  ? "rgba(33,37,41,0.24)"
+                  : "rgba(255,255,255,0.8)",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
+                color: isTransparent ? "#ffffff" : "#212529",
+                fontSize: "0.72rem",
+                letterSpacing: "0.04em",
+                fontFamily: "inherit",
+                opacity: searchOpen ? 1 : 0,
+                pointerEvents: searchOpen ? "auto" : "none",
+                transform: searchOpen ? "scaleX(1)" : "scaleX(0)",
+                transformOrigin: "right center",
+                transition:
+                  "transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, background-color 0.3s ease",
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen((open) => {
+                  if (open) setDesktopSearch("");
+                  return !open;
+                });
+              }}
+              aria-label={
+                searchOpen
+                  ? lang === "en"
+                    ? "close search"
+                    : "关闭搜索"
+                  : lang === "en"
+                    ? "search"
+                    : "搜索"
+              }
+              aria-expanded={searchOpen}
+              tabIndex={desktopFits ? 0 : -1}
+              style={{
+                position: "absolute",
+                zIndex: 2,
+                top: "50%",
+                left: 0,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: isTransparent ? "#ffffff" : "#212529",
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                transform: searchOpen
+                  ? "translate(-208px, -50%) scale(0.94)"
+                  : "translate(0, -50%) scale(1)",
+                transition:
+                  "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease",
+              }}
             >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="16.5" y1="16.5" x2="22" y2="22" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <line x1="16.5" y1="16.5" x2="22" y2="22" />
+              </svg>
+            </button>
+          </div>
           <button
             onClick={toggle}
             aria-label="toggle language"
@@ -383,73 +500,25 @@ export default function Nav({ currentPage, navigate }: NavProps) {
         </button>
       </nav>
 
-      {/* Desktop search bar */}
-      {searchOpen && desktopFits && (
+      {/* Desktop search results */}
+      {searchOpen && desktopFits && desktopSearch.trim() && (
         <div
+          ref={desktopSearchResultsRef}
           style={{
             position: "fixed",
-            top: navHeight,
-            left: 0,
-            right: 0,
+            top: `calc(${navHeight} + 8px)`,
+            right: "calc(clamp(2rem, 5vw, 5rem) + 2.25rem)",
+            width: "min(390px, calc(100vw - 4rem))",
             zIndex: 99,
-            backgroundColor: "#ffffff",
-            borderBottom: "1px solid #dee2e6",
-            padding: "1rem clamp(2rem,5vw,6rem)",
             transition: "top 0.45s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-              maxWidth: "600px",
-              margin: "0 auto",
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#9AA3AC"
-              strokeWidth="1.5"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <line x1="16.5" y1="16.5" x2="22" y2="22" />
-            </svg>
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder={
-                lang === "en" ? "search projects, people, articles..." : "搜索项目、团队、文章…"
-              }
-              style={{
-                flex: 1,
-                border: "none",
-                outline: "none",
-                fontSize: "0.85rem",
-                letterSpacing: "0.04em",
-                color: "#212529",
-                fontFamily: "inherit",
-                backgroundColor: "transparent",
-              }}
-            />
-            <button
-              onClick={() => setSearchOpen(false)}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#9AA3AC",
-                fontSize: "0.7rem",
-                fontFamily: "inherit",
-                letterSpacing: "0.06em",
-              }}
-            >
-              {lang === "en" ? "close" : "关闭"}
-            </button>
-          </div>
+          <SiteSearchResults
+            query={desktopSearch}
+            lang={lang}
+            floating
+            onSelect={navigateAndClose}
+          />
         </div>
       )}
 
@@ -540,39 +609,61 @@ export default function Nav({ currentPage, navigate }: NavProps) {
         {/* Mobile search */}
         <div
           style={{
-            padding: "1rem 1.5rem",
             borderBottom: "1px solid #dee2e6",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.75rem",
           }}
         >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#9AA3AC"
-            strokeWidth="1.5"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <line x1="16.5" y1="16.5" x2="22" y2="22" />
-          </svg>
-          <input
-            type="text"
-            value={mobileSearch}
-            onChange={(e) => setMobileSearch(e.target.value)}
-            placeholder={lang === "en" ? "search..." : "搜索…"}
+          <div
             style={{
-              flex: 1,
-              border: "none",
-              outline: "none",
-              fontSize: "0.8rem",
-              letterSpacing: "0.04em",
-              color: "#212529",
-              fontFamily: "inherit",
-              backgroundColor: "transparent",
+              margin: "1rem 1.25rem",
+              padding: "0.65rem 0.8rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              border: "1px solid rgba(222,226,230,0.9)",
+              backgroundColor: "rgba(248,249,250,0.8)",
+              transition: "border-color 0.25s ease, background-color 0.25s ease",
             }}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9AA3AC"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.5" y1="16.5" x2="22" y2="22" />
+            </svg>
+            <input
+              type="search"
+              value={mobileSearch}
+              onChange={(event) => setMobileSearch(event.target.value)}
+              onKeyDown={handleSearchKeyDown(mobileSearch, "mobile")}
+              aria-label={lang === "en" ? "search the site" : "搜索网站"}
+              aria-expanded={mobileSearch.trim().length > 0}
+              placeholder={
+                lang === "en" ? "search projects, people, media..." : "搜索项目、团队、媒体…"
+              }
+              style={{
+                flex: 1,
+                minWidth: 0,
+                border: "none",
+                outline: "none",
+                fontSize: "0.8rem",
+                letterSpacing: "0.04em",
+                color: "#212529",
+                fontFamily: "inherit",
+                backgroundColor: "transparent",
+              }}
+            />
+          </div>
+          <SiteSearchResults
+            query={mobileSearch}
+            lang={lang}
+            compact
+            onSelect={navigateAndClose}
           />
         </div>
 
@@ -639,6 +730,44 @@ export default function Nav({ currentPage, navigate }: NavProps) {
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateX(16px); }
           to   { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes searchPanelIn {
+          from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes searchResultIn {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .desktop-site-search-input::-webkit-search-cancel-button {
+          display: none;
+        }
+
+        .desktop-site-search-input::placeholder {
+          color: #7f8992;
+          opacity: 1;
+        }
+
+        .desktop-site-search-input.on-dark::placeholder {
+          color: rgba(255,255,255,0.72);
+        }
+
+        .site-search-result:hover,
+        .site-search-result:focus-visible {
+          background-color: #f8f9fa !important;
+          outline: none;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .desktop-site-search-input,
+          .site-search-panel,
+          .site-search-result {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
     </>
