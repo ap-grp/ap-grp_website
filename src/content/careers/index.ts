@@ -34,22 +34,22 @@ interface CareerFaq {
 export const careerFaqs: CareerFaq[] = [
   {
     question: {
-      en: "what positions are currently available?",
-      zh: "目前有哪些开放职位？",
-    },
-    answer: {
-      en: "we currently have openings for a senior architect, architectural designer, and architectural intern. please see the listings above for full details.",
-      zh: "我们目前在招募高级建筑师、建筑设计师和建筑实习生。详情请参阅上方招聘列表。",
-    },
-  },
-  {
-    question: {
       en: "do you accept internship applications?",
       zh: "是否接受实习申请？",
     },
     answer: {
-      en: "yes. we welcome applications from motivated architecture students for architectural internship positions. internships are typically for a minimum of six months.",
-      zh: "是的。我们欢迎积极上进的建筑专业学生申请建筑实习职位。实习期通常最短为六个月。",
+      en: "yes. we welcome applications from motivated architecture students for architectural internship positions. internships are typically for a minimum of three months.",
+      zh: "是的。我们欢迎积极上进的建筑专业学生申请建筑实习职位。实习期通常最短为三个月。",
+    },
+  },
+  {
+    question: {
+      en: "can i apply if i am based overseas?",
+      zh: "如果我目前在海外，仍可以申请吗？",
+    },
+    answer: {
+      en: "yes. we will consider applications from candidates based overseas. depending on the role, your experience, and our studio needs, you may also have the opportunity to work at one of our overseas studios.",
+      zh: "可以。我们会考虑目前在海外的申请者。根据职位要求、您的经验及各工作室的需求，您也可能有机会在我们的海外工作室任职。",
     },
   },
   {
