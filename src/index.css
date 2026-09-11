@@ -47,6 +47,10 @@ body * {
   text-transform: none !important;
 }
 
+.footer-legal-suffix {
+  text-transform: uppercase !important;
+}
+
 .file-upload-label:hover,
 .file-upload-label:focus-within {
   border-color: #212529 !important;

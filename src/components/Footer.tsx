@@ -96,7 +96,7 @@ export default function Footer({ navigate }: FooterProps) {
                 textTransform: "uppercase",
               }}
             >
-              {lang === "en" ? "singapore" : "新加坡"}
+              {lang === "en" ? "main office address" : "总部办公室地址"}
             </p>
             <address
               style={{
@@ -185,7 +185,8 @@ export default function Footer({ navigate }: FooterProps) {
             }}
           >
             © {new Date().getFullYear()}{" "}
-            {lang === "en" ? "a+pgrp. all rights reserved." : "a+pgrp. 版权所有。"}
+            a+pgrp <span className="footer-legal-suffix">LLP</span>.{" "}
+            {lang === "en" ? "all rights reserved." : "版权所有。"}
           </p>
         </div>
       </div>

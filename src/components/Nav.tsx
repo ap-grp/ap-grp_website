@@ -72,7 +72,7 @@ export default function Nav({ currentPage, navigate }: NavProps) {
 
   const isTransparent = isHome && !scrolled && !menuOpen;
 
-  const isExpandedHome = isHome && !scrolled;
+  const isExpandedHome = isHome && !scrolled && !menuOpen;
   const navHeight = isExpandedHome ? "clamp(88px, 9vw, 112px)" : "64px";
 
   useLayoutEffect(() => {

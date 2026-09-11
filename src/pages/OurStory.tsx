@@ -48,6 +48,10 @@ function WorldMap({ isZh }: { isZh: boolean }) {
 
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const labelHovered = useRef(false);
+
+  const tooltipHovered = useRef(false);
+
   const language = isZh ? "zh" : "en";
 
   useEffect(
@@ -58,24 +62,39 @@ function WorldMap({ isZh }: { isZh: boolean }) {
   );
 
   const showTooltip = (slug: string) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
 
     setHovered(slug);
 
     setTooltipOpen(true);
   };
 
-  const hideTooltip = () => {
+  const hideTooltip = (force = false) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
+
+    if (force) {
+      labelHovered.current = false;
+      tooltipHovered.current = false;
+    }
 
     // Leave a short bridge between the SVG label and its HTML popup so moving
 
     // the pointer into the popup does not interrupt the hover state.
 
     closeTimer.current = setTimeout(() => {
+      closeTimer.current = null;
+
+      if (!force && (labelHovered.current || tooltipHovered.current)) return;
+
       setTooltipOpen(false);
 
-      closeTimer.current = setTimeout(() => setHovered(null), 320);
+      closeTimer.current = setTimeout(() => {
+        closeTimer.current = null;
+        setHovered(null);
+      }, 320);
     }, 120);
   };
 
@@ -127,8 +146,14 @@ function WorldMap({ isZh }: { isZh: boolean }) {
             className="story-map-tooltip"
             role="tooltip"
             aria-hidden={!isActive}
-            onPointerEnter={() => showTooltip(office.slug)}
-            onPointerLeave={hideTooltip}
+            onPointerEnter={() => {
+              tooltipHovered.current = true;
+              showTooltip(office.slug);
+            }}
+            onPointerLeave={() => {
+              tooltipHovered.current = false;
+              hideTooltip();
+            }}
             style={{
               position: "absolute",
 
@@ -179,7 +204,7 @@ function WorldMap({ isZh }: { isZh: boolean }) {
                 className="story-map-tooltip-close"
                 type="button"
                 aria-label={isZh ? "关闭办公室详情" : "close office details"}
-                onClick={hideTooltip}
+                onClick={() => hideTooltip(true)}
               >
                 ×
               </button>
@@ -249,13 +274,19 @@ function WorldMap({ isZh }: { isZh: boolean }) {
             data-office={office.slug}
             aria-label={`${label}: ${officeDetails}`}
             aria-expanded={isActive}
-            onMouseEnter={() => showTooltip(office.slug)}
-            onMouseLeave={hideTooltip}
+            onPointerEnter={() => {
+              labelHovered.current = true;
+              showTooltip(office.slug);
+            }}
+            onPointerLeave={() => {
+              labelHovered.current = false;
+              hideTooltip();
+            }}
             onFocus={() => showTooltip(office.slug)}
-            onBlur={hideTooltip}
+            onBlur={() => hideTooltip()}
             onClick={() => showTooltip(office.slug)}
             onKeyDown={(event) => {
-              if (event.key === "Escape") hideTooltip();
+              if (event.key === "Escape") hideTooltip(true);
             }}
             style={{
               position: "absolute",
