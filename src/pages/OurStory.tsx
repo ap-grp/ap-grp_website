@@ -662,7 +662,7 @@ export default function OurStory({ navigate }: Props) {
               marginBottom: "1.25rem",
             }}
           >
-            {zh ? "关于我们" : "about us"}
+            {zh ? "历程" : "about us"}
           </p>
           <h1
             style={{
