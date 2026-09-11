@@ -8,7 +8,7 @@ import gallery04 from "./images/gallery-04.jpg?responsive";
 import gallery05 from "./images/gallery-05.jpg?responsive";
 
 const project = {
-  slug: "mcy-m-terminal-myanmar",
+  slug: "m-terminal",
   title: { en: "terminal m mall", zh: "terminal m 购物中心" },
   location: { en: "yangon, myanmar", zh: "仰光，缅甸" },
   year: "2022",

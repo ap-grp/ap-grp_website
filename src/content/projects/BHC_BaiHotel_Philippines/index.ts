@@ -14,7 +14,7 @@ import gallery10 from "./images/gallery-10.jpg?responsive";
 import gallery11 from "./images/gallery-11.jpg?responsive";
 
 const project = {
-  slug: "bhc-bai-hotel-philippines",
+  slug: "bai-hotel",
   title: { en: "bai hotel", zh: "bai hotel" },
   location: { en: "cebu, philippines", zh: "宿务，菲律宾" },
   year: "",

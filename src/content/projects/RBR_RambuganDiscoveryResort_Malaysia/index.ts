@@ -7,7 +7,7 @@ import gallery03 from "./images/gallery-03.jpg?responsive";
 import gallery04 from "./images/gallery-04.jpg?responsive";
 
 const project = {
-  slug: "rbr-rambugan-discovery-resort-malaysia",
+  slug: "rambugan-discovery-resort",
   title: { en: "rambugan discovery resort", zh: "rambugan discovery resort" },
   location: { en: "sarawak, malaysia", zh: "砂拉越，马来西亚" },
   year: "",

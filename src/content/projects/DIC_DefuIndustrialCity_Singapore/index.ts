@@ -7,7 +7,7 @@ import gallery03 from "./images/gallery-03.jpg?responsive";
 import gallery04 from "./images/gallery-04.jpg?responsive";
 
 const project = {
-  slug: "dic-defu-industrial-city-singapore",
+  slug: "defu-industrial-city",
   title: { en: "defu industrial city", zh: "德福工业城" },
   location: { en: "singapore", zh: "新加坡" },
   year: "2019",

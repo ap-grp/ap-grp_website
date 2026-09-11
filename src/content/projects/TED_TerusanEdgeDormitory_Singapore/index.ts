@@ -6,7 +6,7 @@ import gallery02 from "./images/gallery-02.jpg?responsive";
 import gallery03 from "./images/gallery-03.jpg?responsive";
 
 const project = {
-  slug: "ted-terusan-edge-dormitory-singapore",
+  slug: "terusan-edge-dormitory",
   title: { en: "terusan edge dormitory", zh: "terusan edge dormitory" },
   location: { en: "singapore", zh: "新加坡" },
   year: "",

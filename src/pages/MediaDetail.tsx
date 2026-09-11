@@ -1,6 +1,7 @@
 import type { PageState } from "../App";
 import ResponsiveImage from "../components/ResponsiveImage";
 import { articles } from "../content/media";
+import { mediaTagLabels } from "../content/media/types";
 import { useLang } from "../context/lang";
 
 interface Props {
@@ -42,7 +43,7 @@ export default function MediaDetail({ slug, navigate }: Props) {
   }
 
   const related = articles
-    .filter((a) => a.slug !== slug && a.category === article.category)
+    .filter((a) => a.slug !== slug && a.tag === article.tag)
     .slice(0, 3);
 
   return (
@@ -96,7 +97,7 @@ export default function MediaDetail({ slug, navigate }: Props) {
               color: "#b4906e",
             }}
           >
-            {zh ? article.zhCategory : article.category}
+            {mediaTagLabels[article.tag][lang]}
           </span>
           <span style={{ width: "20px", height: "1px", backgroundColor: "#dee2e6" }} />
           <span
@@ -245,7 +246,7 @@ export default function MediaDetail({ slug, navigate }: Props) {
                       marginBottom: "0.5rem",
                     }}
                   >
-                    {zh ? a.zhCategory : a.category}
+                    {mediaTagLabels[a.tag][lang]}
                   </span>
                   <p
                     style={{

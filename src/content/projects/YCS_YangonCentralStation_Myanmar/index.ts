@@ -12,7 +12,7 @@ import gallery08 from "./images/gallery-08.jpg?responsive";
 import gallery09 from "./images/gallery-09.jpg?responsive";
 
 const project = {
-  slug: "ycs-yangon-central-station-myanmar",
+  slug: "yangon-central-station",
   title: { en: "yangon central station", zh: "仰光中央车站" },
   location: { en: "yangon, myanmar", zh: "仰光，缅甸" },
   year: "",

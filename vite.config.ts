@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { responsiveImages } from "./build/responsiveImages";
+import { staticPageDirectories } from "./build/staticPageDirectories";
 
 const siteConfiguration = loadSiteConfiguration();
 
@@ -34,6 +35,8 @@ export default defineConfig(({ mode }) => {
 
     plugins: [
       responsiveImages(),
+
+      staticPageDirectories(),
 
       react(),
 

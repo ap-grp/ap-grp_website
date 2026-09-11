@@ -1,7 +1,7 @@
 import type { Project } from "../../types";
 
 const project = {
-  slug: "pph-pan-pacific-hotel-upgrading-singapore",
+  slug: "pan-pacific-hotel-upgrading",
   title: {
     en: "pan pacific hotel upgrading",
     zh: "pan pacific hotel upgrading",

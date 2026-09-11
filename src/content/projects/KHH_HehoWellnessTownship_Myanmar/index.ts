@@ -8,7 +8,7 @@ import gallery04 from "./images/gallery-04.jpg?responsive";
 import gallery05 from "./images/gallery-05.jpg?responsive";
 
 const project = {
-  slug: "khh-heho-wellness-township-myanmar",
+  slug: "heho-wellness-township",
   title: { en: "heho wellness township", zh: "heho wellness township" },
   location: { en: "heho, myanmar", zh: "黑霍，缅甸" },
   year: "",

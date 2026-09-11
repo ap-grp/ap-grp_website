@@ -15,7 +15,7 @@ import gallery11 from "./images/gallery-11.jpg?responsive";
 import gallery12 from "./images/gallery-12.jpg?responsive";
 
 const project = {
-  slug: "mmt_mtower-myanmar",
+  slug: "m-tower",
   title: { en: "m tower", zh: "m 塔" },
   location: { en: "yangon, myanmar", zh: "仰光，缅甸" },
   year: "2023",

@@ -4,6 +4,7 @@ import FadeSection from "../components/FadeSection";
 import ResponsiveImage from "../components/ResponsiveImage";
 import { homeImages } from "../content/home";
 import { featuredArticle } from "../content/media/featured";
+import { mediaTagLabels } from "../content/media/types";
 import { latestProjects } from "../content/projects/latest";
 import { useLang } from "../context/lang";
 
@@ -681,7 +682,7 @@ export default function Home({ navigate }: Props) {
                         textTransform: "uppercase",
                       }}
                     >
-                      {zh ? featuredArticle.zhCategory : featuredArticle.category}
+                      {mediaTagLabels[featuredArticle.tag][lang]}
                     </span>
                     <span
                       style={{

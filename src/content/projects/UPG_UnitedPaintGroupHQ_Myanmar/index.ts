@@ -5,7 +5,7 @@ import gallery01 from "./images/gallery-01.jpg?responsive";
 import gallery02 from "./images/gallery-02.jpg?responsive";
 
 const project = {
-  slug: "upg-united-paint-group-hq-myanmar",
+  slug: "united-paint-group-hq",
   title: {
     en: "united paint group headquarters",
     zh: "united paint group headquarters",

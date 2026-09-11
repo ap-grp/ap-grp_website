@@ -10,7 +10,7 @@ import gallery06 from "./images/gallery-06.jpg?responsive";
 import gallery07 from "./images/gallery-07.jpg?responsive";
 
 const project = {
-  slug: "amk-ang-mo-kio-bus-depot-singapore",
+  slug: "ang-mo-kio-bus-depot",
   title: { en: "ang mo kio bus depot", zh: "宏茂桥巴士车厂" },
   location: { en: "singapore", zh: "新加坡" },
   year: "",

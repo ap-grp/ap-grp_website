@@ -4,7 +4,7 @@ import cover from "./images/cover.jpg?responsive";
 import gallery01 from "./images/gallery-01.jpg?responsive";
 
 const project = {
-  slug: "jpp5-5-jalan-papan-factory-singapore",
+  slug: "5-jalan-papan-factory",
   title: { en: "5 jalan papan factory", zh: "5 jalan papan factory" },
   location: { en: "singapore", zh: "新加坡" },
   year: "",

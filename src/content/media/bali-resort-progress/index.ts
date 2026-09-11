@@ -5,8 +5,7 @@ const article = {
   slug: "bali-resort-progress",
   title: "eco resort, bali: design in progress",
   zhTitle: "巴厘岛生态度假村：设计进行中",
-  category: "projects",
-  zhCategory: "项目",
+  tag: "news",
   date: "22 march 2023",
   summary:
     "a+pgrp shares an update on the eco resort project currently under development in ubud, bali, offering an insight into the design principles and sustainable strategies that are shaping the project.",

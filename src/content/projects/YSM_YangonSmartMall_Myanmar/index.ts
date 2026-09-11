@@ -19,7 +19,7 @@ import gallery07 from "./images/gallery-07.jpg?responsive";
 import gallery08 from "./images/gallery-08.jpg?responsive";
 
 const project = {
-  slug: "ysm-yangon-smart-mall-myanmar",
+  slug: "yangon-smart-mall",
 
   title: { en: "yangon smart mall", zh: "仰光智慧商城" },
 

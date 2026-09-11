@@ -8,7 +8,7 @@ import gallery04 from "./images/gallery-04.jpg?responsive";
 import gallery05 from "./images/gallery-05.jpg?responsive";
 
 const project = {
-  slug: "l8r-lot-8-residences-philippines",
+  slug: "lot-8-residences",
   title: { en: "lot 8 residences", zh: "lot 8 residences" },
   location: { en: "cebu, philippines", zh: "宿务，菲律宾" },
   year: "",

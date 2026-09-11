@@ -11,7 +11,7 @@ import gallery07 from "./images/gallery-07.jpg?responsive";
 import gallery08 from "./images/gallery-08.jpg?responsive";
 
 const project = {
-  slug: "ncu-nanchang-university-hospital-china",
+  slug: "nanchang-university-hospital",
   title: { en: "nanchang university hospital", zh: "南昌大学医院" },
   location: { en: "nanchang, china", zh: "南昌，中国" },
   year: "",

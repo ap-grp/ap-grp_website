@@ -5,8 +5,7 @@ const article = {
   slug: "insights-tropical-architecture",
   title: "designing for the tropics: principles from twenty years of practice",
   zhTitle: "为热带而设计：二十年实践的原则",
-  category: "insights",
-  zhCategory: "洞见",
+  tag: "publications",
   date: "10 january 2023",
   summary:
     "founding partner liew soong shoon reflects on the defining principles that have guided a+pgrp's approach to tropical architecture across two decades of practice in southeast asia.",

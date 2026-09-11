@@ -14,7 +14,9 @@ project-slug/
 ## Add a project
 
 1. Copy an existing project folder and give it a unique name. The current convention is `PROJECTCODE_ProjectName_Country`.
-2. Edit the fields in its `index.ts`. All visitor-facing text uses `{ en, zh }`.
+2. Edit the fields in its `index.ts`. Set `slug` from the project name without the
+   internal 3–4 character project code or trailing country; the slug becomes the public
+   `/projects/{slug}/` directory automatically. All visitor-facing text uses `{ en, zh }`.
    Set `type` to an array of one or more valid project types. These values provide
    both the detail-page type text and the filters/tags on the projects page.
    Multiple values display as a comma-separated list.

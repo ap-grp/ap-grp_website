@@ -3,41 +3,31 @@ import type { PageState } from "../App";
 import FadeSection from "../components/FadeSection";
 import ResponsiveImage from "../components/ResponsiveImage";
 import { articles } from "../content/media";
+import { mediaTagLabels, mediaTags, type MediaTag } from "../content/media/types";
 import { useLang } from "../context/lang";
 
 interface Props {
   navigate: (p: PageState) => void;
 
-  initialCategory?: string;
+  initialTag?: MediaTag;
 }
 
-export default function Media({ navigate, initialCategory }: Props) {
+export default function Media({ navigate, initialTag }: Props) {
   const { lang } = useLang();
 
   const zh = lang === "zh";
 
-  const [active, setActive] = useState(initialCategory || "all");
+  const [active, setActive] = useState<MediaTag | "all">(initialTag || "all");
 
   const [search, setSearch] = useState("");
 
-  const categories = [
+  const tags: { key: MediaTag | "all"; en: string; zh: string }[] = [
     { key: "all", en: "all", zh: "全部" },
-
-    { key: "news", en: "news", zh: "新闻" },
-
-    { key: "awards", en: "awards", zh: "奖项" },
-
-    { key: "projects", en: "projects", zh: "项目" },
-
-    { key: "press", en: "press", zh: "媒体报道" },
-
-    { key: "insights", en: "insights", zh: "洞见" },
-
-    { key: "events", en: "events", zh: "活动" },
+    ...mediaTags.map((tag) => ({ key: tag, ...mediaTagLabels[tag] })),
   ];
 
   const filtered = articles.filter((a) => {
-    const matchCat = active === "all" || a.category === active;
+    const matchTag = active === "all" || a.tag === active;
 
     const searchVal = search.toLowerCase();
 
@@ -49,7 +39,7 @@ export default function Media({ navigate, initialCategory }: Props) {
         (a.zhTitle.toLowerCase().includes(searchVal) ||
           a.zhSummary.toLowerCase().includes(searchVal)));
 
-    return matchCat && matchSearch;
+    return matchTag && matchSearch;
   });
 
   const featured = filtered[0];
@@ -98,7 +88,7 @@ export default function Media({ navigate, initialCategory }: Props) {
             }}
           >
             <div style={{ display: "flex", gap: "0.25rem", flexWrap: "wrap" }}>
-              {categories.map((c) => (
+              {tags.map((c) => (
                 <button
                   key={c.key}
                   onClick={() => setActive(c.key)}
@@ -253,7 +243,7 @@ export default function Media({ navigate, initialCategory }: Props) {
                               color: "#b4906e",
                             }}
                           >
-                            {zh ? featured.zhCategory : featured.category}
+                            {mediaTagLabels[featured.tag][lang]}
                           </span>
                           <span
                             style={{
@@ -390,7 +380,7 @@ export default function Media({ navigate, initialCategory }: Props) {
                                 color: "#b4906e",
                               }}
                             >
-                              {zh ? a.zhCategory : a.category}
+                              {mediaTagLabels[a.tag][lang]}
                             </span>
                             <span
                               style={{

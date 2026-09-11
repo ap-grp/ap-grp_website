@@ -5,8 +5,7 @@ const article = {
   slug: "new-singapore-studio",
   title: "a+pgrp marks twenty years with expanded singapore studio",
   zhTitle: "a+pgrp 以扩建新加坡工作室庆祝二十周年",
-  category: "news",
-  zhCategory: "新闻",
+  tag: "news",
   date: "5 may 2023",
   summary:
     "marking two decades of practice, a+pgrp has expanded its singapore studio at science park, creating a new collaborative workspace designed to support the next phase of the practice's growth.",

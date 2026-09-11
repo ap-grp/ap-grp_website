@@ -7,7 +7,7 @@ import gallery03 from "./images/gallery-03.jpg?responsive";
 import gallery04 from "./images/gallery-04.jpg?responsive";
 
 const project = {
-  slug: "ste-st-engineering-aerospace-hangar-singapore",
+  slug: "st-engineering-aerospace-hangar",
   title: {
     en: "st engineering aerospace hangar",
     zh: "st engineering aerospace hangar",

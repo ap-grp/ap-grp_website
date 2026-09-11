@@ -10,7 +10,7 @@ import gallery06 from "./images/gallery-06.jpg?responsive";
 import gallery07 from "./images/gallery-07.jpg?responsive";
 
 const project = {
-  slug: "cir-camotes-integrated-resort-philippines",
+  slug: "camotes-integrated-resort",
   title: { en: "camotes integrated resort", zh: "camotes integrated resort" },
   location: { en: "camotes islands, philippines", zh: "卡莫特斯群岛，菲律宾" },
   year: "",

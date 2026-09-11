@@ -7,7 +7,7 @@ import gallery03 from "./images/gallery-03.jpg?responsive";
 import gallery04 from "./images/gallery-04.jpg?responsive";
 
 const project = {
-  slug: "ync-yangon-new-city-myanmar",
+  slug: "yangon-new-city",
   title: { en: "yangon new city", zh: "仰光新城" },
   location: { en: "yangon, myanmar", zh: "仰光，缅甸" },
   year: "",

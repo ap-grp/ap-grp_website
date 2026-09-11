@@ -5,8 +5,7 @@ const article = {
   slug: "sia-award-2023",
   title: "a+pgrp receives sia architectural design award 2023",
   zhTitle: "a+pgrp 荣获2023年新加坡建筑师学会建筑设计奖",
-  category: "awards",
-  zhCategory: "奖项",
+  tag: "awards",
   date: "12 november 2023",
   summary:
     "a+pgrp is honoured to receive the singapore institute of architects architectural design award for the urban oasis residences project, recognising excellence in residential architecture.",

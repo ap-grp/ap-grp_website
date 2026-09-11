@@ -4,6 +4,9 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import { FORM_SUBMIT_SUCCESS_HASH } from "./lib/formSubmit";
+import { locationToPage, pageToUrl, type PageState } from "./routes";
+
+export type { PageState } from "./routes";
 
 const Careers = lazy(() => import("./pages/Careers"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -15,28 +18,6 @@ const PersonDetail = lazy(() => import("./pages/PersonDetail"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
 const Projects = lazy(() => import("./pages/Projects"));
 const Services = lazy(() => import("./pages/Services"));
-
-export type PageState =
-  | { id: "home" }
-  | { id: "story" }
-  | {
-      id: "projects";
-      filter?: string;
-    }
-  | { id: "project-detail"; slug: string }
-  | { id: "people" }
-  | {
-      id: "person-detail";
-      slug: string;
-    }
-  | { id: "services" }
-  | { id: "media"; category?: string }
-  | {
-      id: "media-detail";
-      slug: string;
-    }
-  | { id: "careers" }
-  | { id: "contact" };
 
 const HISTORY_STATE_KEY = "apgrpPage";
 
@@ -84,20 +65,21 @@ export default function App() {
   const [page, setPage] = useState<PageState>(() =>
     window.location.hash === FORM_SUBMIT_SUCCESS_HASH
       ? { id: "careers" }
-      : (getHistoryPage(window.history.state) ?? { id: "home" }),
+      : locationToPage(window.location),
   );
   const initialPageRef = useRef(page);
 
   useEffect(() => {
-    if (
-      window.location.hash === FORM_SUBMIT_SUCCESS_HASH ||
-      !getHistoryPage(window.history.state)
-    ) {
-      window.history.replaceState(withHistoryPage(initialPageRef.current), "");
-    }
+    const initialPage = initialPageRef.current;
+    const hash = window.location.hash === FORM_SUBMIT_SUCCESS_HASH ? window.location.hash : "";
+    window.history.replaceState(
+      withHistoryPage(initialPage),
+      "",
+      `${pageToUrl(initialPage)}${hash}`,
+    );
 
     const handlePopState = (event: PopStateEvent) => {
-      setPage(getHistoryPage(event.state) ?? { id: "home" });
+      setPage(getHistoryPage(event.state) ?? locationToPage(window.location));
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     };
 
@@ -106,7 +88,7 @@ export default function App() {
   }, []);
 
   const navigate = useCallback((newPage: PageState) => {
-    window.history.pushState(withHistoryPage(newPage), "");
+    window.history.pushState(withHistoryPage(newPage), "", pageToUrl(newPage));
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, []);
@@ -128,7 +110,7 @@ export default function App() {
       case "services":
         return <Services navigate={navigate} />;
       case "media":
-        return <Media navigate={navigate} initialCategory={page.category} />;
+        return <Media navigate={navigate} initialTag={page.tag} />;
       case "media-detail":
         return <MediaDetail slug={page.slug} navigate={navigate} />;
       case "careers":

@@ -10,7 +10,7 @@ import gallery06 from "./images/gallery-06.jpg?responsive";
 import gallery07 from "./images/gallery-07.jpg?responsive";
 
 const project = {
-  slug: "siy-mixed-use-complex-myanmar",
+  slug: "mixed-use-complex",
   title: { en: "siy mixed use complex", zh: "siy mixed use complex" },
   location: { en: "yangon, myanmar", zh: "仰光，缅甸" },
   year: "",

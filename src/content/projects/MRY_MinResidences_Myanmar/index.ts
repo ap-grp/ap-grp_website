@@ -12,7 +12,7 @@ import gallery08 from "./images/gallery-08.jpg?responsive";
 import gallery09 from "./images/gallery-09.jpg?responsive";
 
 const project = {
-  slug: "mry-min-residences-myanmar",
+  slug: "min-residences",
   title: { en: "min residences", zh: "min residences" },
   location: { en: "yangon, myanmar", zh: "仰光，缅甸" },
   year: "",

@@ -9,7 +9,7 @@ import gallery05 from "./images/gallery-05.jpg?responsive";
 import gallery06 from "./images/gallery-06.jpg?responsive";
 
 const project = {
-  slug: "psl-dagon-seikan-township-myanmar",
+  slug: "dagon-seikan-township",
   title: { en: "dagon seikan township", zh: "dagon seikan township" },
   location: { en: "yangon, myanmar", zh: "仰光, 缅甸" },
   year: "",

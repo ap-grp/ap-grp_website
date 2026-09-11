@@ -1,7 +1,7 @@
 import type { Project } from "../../types";
 
 const project = {
-  slug: "bag-andersen-garden-china",
+  slug: "andersen-garden",
   title: { en: "andersen garden", zh: "andersen garden" },
   location: { en: "beijing, china", zh: "北京，中国" },
   year: "",

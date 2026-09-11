@@ -1,4 +1,4 @@
-import mmtMtowerMyanmar from "./MMT_MTower_Myanmar";
+import mTowerMyanmar from "./MMT_MTower_Myanmar";
 import yangonCentralStation from "./YCS_YangonCentralStation_Myanmar";
 import mTerminal from "./MCY_MTerminal_Myanmar";
 import minResidences from "./MRY_MinResidences_Myanmar";
@@ -29,7 +29,7 @@ import yangonSmartMall from "./YSM_YangonSmartMall_Myanmar";
 import type { Project, ProjectTag } from "../types";
 
 export const projects: Project[] = [
-  mmtMtowerMyanmar,
+  mTowerMyanmar,
   yangonCentralStation,
   mTerminal,
   minResidences,

@@ -149,5 +149,10 @@ After GitHub Pages finishes publishing, the website will be live again.
 ## Notes
 
 - The production base path is `/` because the site is served from a custom domain.
+- Pages use directory-style URLs such as `/projects/` and `/our-story/`. Project,
+  media, and people detail pages use their content slug under the relevant directory,
+  for example `/projects/mtower/`.
+- The production build creates an `index.html` in every page directory so nested URLs
+  can be opened or refreshed directly on GitHub Pages. Home remains at `/index.html`.
 - The deployment workflow rebuilds from source. If source is available, use the normal source-based redeploy path.
 - The `dist/`-only method is a fallback for emergencies or handoff situations.

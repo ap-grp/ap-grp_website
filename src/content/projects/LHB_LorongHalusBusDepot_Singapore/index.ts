@@ -7,7 +7,7 @@ import gallery03 from "./images/gallery-03.jpg?responsive";
 import gallery04 from "./images/gallery-04.jpg?responsive";
 
 const project = {
-  slug: "lhb-lorong-halus-bus-depot-singapore",
+  slug: "lorong-halus-bus-depot",
   title: { en: "lorong halus bus depot", zh: "罗弄哈鲁士巴士车厂" },
   location: { en: "singapore", zh: "新加坡" },
   year: "",

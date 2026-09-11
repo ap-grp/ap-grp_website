@@ -5,8 +5,7 @@ const article = {
   slug: "pavilion-hotel-opens",
   title: "the pavilion hotel, chiang mai, opens to guests",
   zhTitle: "亭阁酒店清迈店正式向宾客开放",
-  category: "news",
-  zhCategory: "新闻",
+  tag: "news",
   date: "3 september 2023",
   summary:
     "after three years of design and construction, the pavilion hotel has opened its doors in the foothills of chiang mai, thailand. the project marks a significant milestone for a+pgrp's hospitality portfolio.",

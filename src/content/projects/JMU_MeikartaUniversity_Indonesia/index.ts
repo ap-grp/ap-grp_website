@@ -11,7 +11,7 @@ import gallery07 from "./images/gallery-07.jpg?responsive";
 import gallery08 from "./images/gallery-08.jpg?responsive";
 
 const project = {
-  slug: "jmu-meikarta-university-indonesia",
+  slug: "meikarta-university",
   title: { en: "meikarta university", zh: "meikarta university" },
   location: { en: "jakarta, indonesia", zh: "雅加达，印度尼西亚" },
   year: "",

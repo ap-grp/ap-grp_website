@@ -1,7 +1,7 @@
 import type { Project } from "../../types";
 
 const project = {
-  slug: "nia-ngapali-international-airport-myanmar",
+  slug: "ngapali-international-airport",
   title: {
     en: "ngapali international airport",
     zh: "ngapali international airport",

@@ -1,7 +1,7 @@
 import type { Project } from "../../types";
 
 const project = {
-  slug: "jbh-hg-metal-manufacturing-singapore",
+  slug: "hg-metal-manufacturing",
   title: { en: "hg metal manufacturing", zh: "hg metal manufacturing" },
   location: { en: "singapore", zh: "新加坡" },
   year: "",
