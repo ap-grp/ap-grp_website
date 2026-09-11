@@ -6,7 +6,7 @@ const article = {
   title: "wellness township masterplan featured in wallpaper magazine",
   zhTitle: "健康城镇总体规划荣登《wallpaper》杂志",
   tag: "press",
-  date: "18 july 2023",
+  date: "18.07.2023",
   summary:
     "wallpaper magazine profiles the wellness township masterplan in myanmar, exploring the planning principles and design philosophy that underpin one of a+pgrp's most ambitious projects to date.",
   zhSummary:

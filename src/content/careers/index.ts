@@ -18,6 +18,7 @@ interface CareerListing {
   department: string;
   zhDepartment: string;
   location: string;
+  zhLocation: string;
   type: string;
   zhType: string;
   description: string;
@@ -101,6 +102,7 @@ export const careerListings: CareerListing[] = [
     department: "architecture",
     zhDepartment: "建筑设计",
     location: "singapore",
+    zhLocation: "新加坡",
     type: "full-time",
     zhType: "全职",
     description:
@@ -128,6 +130,7 @@ export const careerListings: CareerListing[] = [
     department: "architecture",
     zhDepartment: "建筑设计",
     location: "singapore",
+    zhLocation: "新加坡",
     type: "full-time",
     zhType: "全职",
     description:
@@ -155,6 +158,7 @@ export const careerListings: CareerListing[] = [
     department: "architecture",
     zhDepartment: "建筑设计",
     location: "singapore",
+    zhLocation: "新加坡",
     type: "internship",
     zhType: "实习",
     description:

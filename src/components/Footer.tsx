@@ -1,6 +1,7 @@
 import type { PageState } from "../App";
 
 import { useLang } from "../context/lang";
+import { headquarters } from "../content/offices";
 
 import logoUrl from "../assets/ap-grp_logo.svg";
 
@@ -106,20 +107,20 @@ export default function Footer({ navigate }: FooterProps) {
                 color: "rgba(255,255,255,0.55)",
               }}
             >
-              43 science park road
-              <br />
-              #01-11 science park 2<br />
-              singapore 117408
-              <br />
+              {headquarters.address[lang].map((line) => (
+                <span key={line} style={{ display: "block" }}>
+                  {line}
+                </span>
+              ))}
               <a
-                href="mailto:info@ap-grp.com"
+                href={`mailto:${headquarters.email}`}
                 style={{
                   color: "#b4906e",
                   textDecoration: "none",
                   letterSpacing: "0.02em",
                 }}
               >
-                info@ap-grp.com
+                {headquarters.email}
               </a>
             </address>
           </div>

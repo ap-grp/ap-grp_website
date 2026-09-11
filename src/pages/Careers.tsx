@@ -368,7 +368,7 @@ export default function Careers() {
                             letterSpacing: "0.06em",
                           }}
                         >
-                          {job.location}
+                          {zh ? job.zhLocation : job.location}
                         </span>
                         <span
                           style={{
@@ -716,7 +716,7 @@ export default function Careers() {
                         <option value="">{zh ? "选择职位…" : "select position..."}</option>
                         {careerListings.map((j) => (
                           <option key={j.title} value={j.title}>
-                            {j.title}
+                            {zh ? j.zhTitle : j.title}
                           </option>
                         ))}
                         <option value="general application">

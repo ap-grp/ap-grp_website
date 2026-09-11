@@ -152,7 +152,7 @@ export default function Home({ navigate }: Props) {
               marginBottom: "1.25rem",
             }}
           >
-            est. 1997 · singapore
+            {zh ? "成立于 1997 年 · 新加坡" : "est. 1997 · singapore"}
           </p>
           <h1
             style={{
